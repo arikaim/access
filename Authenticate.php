@@ -167,8 +167,6 @@ class Authenticate implements AuthInterface, AccessInterface
     {
         $className = (class_exists($name) == true) ? $name : $this->getAuthProviderClass($this->resolveAuthType($name));
         $fullClassName = Self::ACCESS_NAMESPACE . "Provider\\" . $className;
-
-         // Arikaim::config('settings/jwt_key')
         $user = (empty($user) == true) ? $this->user : $user;
 
         return (class_exists($fullClassName) == true) ? new $fullClassName($user,$params) : null;
