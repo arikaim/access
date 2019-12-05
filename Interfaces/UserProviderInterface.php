@@ -43,4 +43,12 @@ interface UserProviderInterface
      * @return bool
      */
     public function verifyPassword($password);
+
+    /**
+     * Return user details by auth id
+     *
+     * @param string|integer $id
+     * @return array
+     */
+    public function getUserById($id);
 }

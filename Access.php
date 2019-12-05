@@ -9,7 +9,7 @@
  */
 namespace Arikaim\Core\Access;
 
-use Arikaim\Core\Interfaces\AccessInterface;
+use Arikaim\Core\Interfaces\Access\AccessInterface;
 use Arikaim\Core\Access\Interfaces\PermissionsInterface;
 
 use Arikaim\Core\Collection\Arrays;
@@ -38,41 +38,61 @@ class Access implements AccessInterface
     const CONTROL_PANEL = "ControlPanel";
     
     /**
-     * Permissions provider
+     * Permissions adapter
      *
      * @var PermissionsInterface
      */
-    private $provider;
+    private $adapter;
+
+    /**
+     * Full Permissions 
+     *
+     * @return array
+     */
+    public function getFullPermissions()
+    {
+        return Self::FULL;
+    }
+
+    /**
+     * Control panel permission name
+     *
+     * @return string
+     */
+    public function getControlPanelPermission()
+    {
+        return Self::CONTROL_PANEL;
+    }
 
     /**
      * Constructor
      * 
-     * @param PermissionsInterface $provider
+     * @param PermissionsInterface $adapter
      */
-    public function __construct(PermissionsInterface $provider) 
+    public function __construct(PermissionsInterface $adapter) 
     {
-        $this->provider = $provider;         
+        $this->adapter = $adapter;         
     }
 
     /**
-     * Set permissions provider
+     * Set permissions adapter
      *
-     * @param PermissionsInterface $provider
+     * @param PermissionsInterface $adapter
      * @return void
      */
-    public function setProvider(PermissionsInterface $provider)
+    public function setProvider(PermissionsInterface $adapter)
     {
-        $this->provider = $provider;
+        $this->adapter = $adapter;
     }
 
     /**
-     * Get permissions provider
+     * Get permissions adapter
      *
      * @return PermissionsInterface
      */
-    public function getProvider()
+    public function getAdapter()
     {        
-        return $this->provider;
+        return $this->adapter;
     }
     
     /**
@@ -101,7 +121,21 @@ class Access implements AccessInterface
             $permissionType = $this->resolvePermissionType($type);
         }
     
-        return $this->getProvider()->hasPermissions($name,$authId,$permissionType);            
+        return $this->adapter->hasPermissions($name,$authId,$permissionType);            
+    }
+
+    /**
+     * Add permission item.
+     *
+     * @param string $name    
+     * @param string|null $title
+     * @param string|null $description
+     * @param string|null $extension
+     * @return boolean
+     */
+    public function addPermission($name, $title = null, $description = null, $extension = null)
+    {
+        $this->adapter->addPermission($name,$title,$description,$extension);
     }
 
     /**

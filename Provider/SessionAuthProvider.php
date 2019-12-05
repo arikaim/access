@@ -72,6 +72,16 @@ class SessionAuthProvider extends AuthProvider implements AuthProviderInterface
     }
 
     /**
+     * Get current auth user
+     *
+     * @return UserProviderInterface
+     */
+    public function getUser()
+    {
+        return (empty($this->getId()) == true) ? null : $this->userProvider->getUserById($this->getId());
+    }
+
+    /**
      * Get login attempts 
      *
      * @return integer

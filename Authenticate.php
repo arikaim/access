@@ -12,9 +12,9 @@ namespace Arikaim\Core\Access;
 use Arikaim\Core\Access\Provider\SessionAuthProvider;
 use Arikaim\Core\Access\Interfaces\UserProviderInterface;
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
-use Arikaim\Core\Interfaces\AccessInterface;
 use Arikaim\Core\Interfaces\SystemErrorInterface;
-use Arikaim\Core\Interfaces\AuthInterface;
+use Arikaim\Core\Interfaces\Access\AuthInterface;
+use Arikaim\Core\Interfaces\Access\AccessInterface;
 
 /**
  * Manage auth.
@@ -28,13 +28,14 @@ class Authenticate implements AuthInterface, AccessInterface
     const AUTH_SESSION      = 2;
     const AUTH_JWT          = 3;
     const AUTH_TOKEN        = 4;
+    const CSRF_TOKEN        = 5;
 
     /**
      * Auth name
      *
      * @var array
      */
-    private $authNames = ["none","basic","session","jwt",'token'];
+    private $authNames = ["none","basic","session","jwt",'token','csrf'];
 
     /**
      * Auth provider variable
@@ -71,12 +72,50 @@ class Authenticate implements AuthInterface, AccessInterface
      * @param AccessInterface $access
      * @param AuthProviderInterface $provider
      */
-    public function __construct(UserProviderInterface $user, AccessInterface $access , SystemErrorInterface $errorRenderer, AuthProviderInterface $provider = null)
+    public function __construct(
+        UserProviderInterface $user, 
+        AccessInterface $access, 
+        SystemErrorInterface $errorRenderer,
+        AuthProviderInterface $provider = null)
     {       
         $this->user = $user;
         $this->provider = ($provider == null) ? new SessionAuthProvider($user) : $provider;   
         $this->access = $access;
         $this->errorRenderer = $errorRenderer;
+    }
+
+    /**
+     * Add permission item.
+     *
+     * @param string $name    
+     * @param string|null $title
+     * @param string|null $description
+     * @param string|null $extension
+     * @return boolean
+     */
+    public function addPermission($name, $title = null, $description = null, $extension = null)
+    {
+        $this->access->addPermission($name,$title,$description,$extension);
+    }
+
+    /**
+     * Full Permissions 
+     *
+     * @return array
+     */
+    public function getFullPermissions()
+    {
+        return $this->access->getFullPermissions();
+    }
+
+    /**
+     * Control panel permission name
+     *
+     * @return string
+     */
+    public function getControlPanelPermission()
+    {
+        return $this->access->getControlPanelPermission();
     }
 
     /**
@@ -309,8 +348,10 @@ class Authenticate implements AuthInterface, AccessInterface
             'BasicAuthentication',
             'SessionAuthentication',
             'JwtAuthentication',
-            'TokenAuthentication'
+            'TokenAuthentication',
+            'CsrfToken'
         ];
+
         return (isset($classes[$id]) == true) ? $classes[$id] : null;
     }
 
@@ -329,6 +370,7 @@ class Authenticate implements AuthInterface, AccessInterface
             'JwtAuthProvider',
             'TokenAuthProvider'
         ];
+
         return (isset($classes[$id]) == true) ? $classes[$id] : null;
     }
 }
