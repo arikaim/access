@@ -95,7 +95,7 @@ class Authenticate implements AuthInterface, AccessInterface
      */
     public function addPermission($name, $title = null, $description = null, $extension = null)
     {
-        $this->access->addPermission($name,$title,$description,$extension);
+        return $this->access->addPermission($name,$title,$description,$extension);
     }
 
     /**

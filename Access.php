@@ -136,7 +136,7 @@ class Access implements AccessInterface
      */
     public function addPermission($name, $title = null, $description = null, $extension = null)
     {
-        $this->adapter->addPermission($name,$title,$description,$extension);
+        return $this->adapter->addPermission($name,$title,$description,$extension);
     }
 
     /**
