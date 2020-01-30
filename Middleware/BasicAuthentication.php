@@ -22,16 +22,6 @@ use Arikaim\Core\Access\Middleware\AuthMiddleware;
 class BasicAuthentication extends AuthMiddleware implements MiddlewareInterface
 {
     /**
-     * Constructor
-     *
-     * @param array $params
-     */
-    public function __construct($auth)
-    {
-       $this->auth = $auth;
-    }
-
-    /**
      * Process middleware
      * 
      * @param ServerRequestInterface  $request

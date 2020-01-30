@@ -49,6 +49,16 @@ abstract class AuthProvider implements AuthProviderInterface
         $this->userProvider = $userProvider;
         $this->user = null;
         $this->params = $params;
+        $this->init();
+    }
+
+    /**
+     * Init provider
+     *
+     * @return void
+     */
+    protected function init()
+    {
     }
 
     /**

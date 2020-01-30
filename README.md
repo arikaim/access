@@ -1,4 +1,4 @@
-### Arikaim CMS Access Package
+## Arikaim CMS Access Package
 ![version: 1.0.0](https://img.shields.io/github/release/arikaim/access.svg)
 ![license: GPL3](https://img.shields.io/badge/License-GPLv3-blue.svg)
      
@@ -9,10 +9,8 @@ Authentication and permissions package
   * PHP 7.1
 
 
-#### Install
+#### Installation
 
-```bash
-
+```sh
 composer require arikaim/access
-
 ```

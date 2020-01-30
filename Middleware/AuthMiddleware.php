@@ -41,13 +41,14 @@ class AuthMiddleware
     /**
      * Constructor
      *
-     * @param array $params
+     * @param SystemErrorInterface $errorRenderer
+     * @param array $options
      */
     public function __construct(AuthProviderInterface $auth, SystemErrorInterface $errorRenderer, $options = [])
     {
-       $this->auth = $auth;
-       $this->errorRenderer = $errorRenderer;
-       $this->options = $options;
+        $this->auth = $auth;
+        $this->errorRenderer = $errorRenderer;
+        $this->options = $options;
     }
     
     /**

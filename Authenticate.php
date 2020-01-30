@@ -182,7 +182,7 @@ class Authenticate implements AuthInterface, AccessInterface
      * @param AuthProviderInterface|string $provider
      * @param UserProviderInterface|null $user
      * @param array $params
-     * @return Authenticate
+     * @return AuthProviderInterface
      */
     public function withProvider($provider, $user = null, $params = [])
     {
@@ -191,7 +191,7 @@ class Authenticate implements AuthInterface, AccessInterface
         }
         $this->setProvider($provider);
 
-        return $this;
+        return $provider;
     }
 
     /**
@@ -216,14 +216,18 @@ class Authenticate implements AuthInterface, AccessInterface
      *
      * @param string $authName
      * @param array $options
+     * @param UserProviderInterface|null $user
      * @return object|null
      */
-    public function middleware($authName, $options = [])
+    public function middleware($authName, $options = [], UserProviderInterface $user = null)
     {       
         $className = (class_exists($authName) == true) ? $authName : $this->getAuthMiddlewareClass($this->resolveAuthType($authName));
         $fullClassName = Self::ACCESS_NAMESPACE . "Middleware\\" . $className;
+        $user = (empty($user) == true) ? $this->user : $user;
         
-        return (class_exists($fullClassName) == true) ? new $fullClassName($this->provider,$this->errorRenderer,$options) : null;
+        $provider = $this->createProvider($authName,$user);
+       
+        return (class_exists($fullClassName) == true) ? new $fullClassName($provider,$this->errorRenderer,$options) : null;
     }
 
     /**

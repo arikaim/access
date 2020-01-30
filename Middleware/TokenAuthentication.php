@@ -32,8 +32,7 @@ class TokenAuthentication extends AuthMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {      
         $token = $this->readToken($request);
-
-        if ($this->getAuthProvider()->authenticate(['token' => $token]) === false) {          
+        if ($this->getAuthProvider()->authenticate(['token' => $token]) === false) {              
             return $this->handleError($request,$handler);
         }
 

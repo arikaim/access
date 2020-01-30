@@ -11,12 +11,20 @@ namespace Arikaim\Core\Access\Provider;
 
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
 use Arikaim\Core\Access\Provider\AuthProvider;
+use Arikaim\Core\Db\Model;
 
 /**
  * Token auth provider.
  */
 class TokenAuthProvider extends AuthProvider implements AuthProviderInterface
 {
+    /**
+     * Token access type
+     */
+    const PAGE_ACCESS_TOKEN  = 0;
+    const LOGIN_ACCESS_TOKEN = 1;
+    const API_ACCESS_TOKEN   = 2;
+
     /**
      * Authenticate
      *
@@ -46,9 +54,9 @@ class TokenAuthProvider extends AuthProvider implements AuthProviderInterface
      * @param integer $userId
      * @param integer $type
      * @param integer $expireTime
-     * @return Model|false
+     * @return array|false
      */
-    public function createToken($userId, $type = AccessTokens::PAGE_ACCESS_TOKEN, $expireTime = 1800)
+    public function createToken($userId, $type = Self::PAGE_ACCESS_TOKEN, $expireTime = 1800)
     {
         return Model::AccessTokens()->createToken($userId,$type,$expireTime);
     }    

@@ -9,7 +9,6 @@
  */
 namespace Arikaim\Core\Access\Provider;
 
-use Arikaim\Core\Access\Interfaces\UserProviderInterface;
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
 use Arikaim\Core\Access\Provider\AuthProvider;
 use Arikaim\Core\Access\Jwt;
@@ -34,15 +33,12 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
     private $jwtKey;
 
     /**
-     * Constructor
+     * Init provider
      *
-     * @param UserProviderInterface $user
-     * @param array $params
+     * @return void
      */
-    public function __construct(UserProviderInterface $userProvider, $params = [])
-    {    
-        parent::__construct($userProvider,$params);   
-      
+    protected function init()
+    {
         $this->jwtKey = $this->getParam('key');
         $this->clearToken();
     }
