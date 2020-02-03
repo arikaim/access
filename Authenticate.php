@@ -131,6 +131,19 @@ class Authenticate implements AuthInterface, AccessInterface
     }
 
     /**
+     * Get user permissions
+     *
+     * @param integer|null $authId
+     * @return mixed
+     */
+    public function getUserPermissions($authId = null)
+    {
+        $authId = (empty($authId) == true) ? $this->getId() : $authId;
+
+        return $this->access->getUserPermissions($authId);     
+    }
+
+    /**
      * Check access 
      *
      * @param string $name Permission name
@@ -226,7 +239,7 @@ class Authenticate implements AuthInterface, AccessInterface
         $user = (empty($user) == true) ? $this->user : $user;
         
         $provider = $this->createProvider($authName,$user);
-       
+    
         return (class_exists($fullClassName) == true) ? new $fullClassName($provider,$this->errorRenderer,$options) : null;
     }
 

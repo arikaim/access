@@ -36,7 +36,7 @@ class JwtAuthentication extends AuthMiddleware implements MiddlewareInterface
             return $this->handleError($request,$handler);
         } 
 
-        if ($this->getAuthProvider()->authenticate(['token' => $token]) == false) {
+        if ($this->authenticate(['token' => $token]) == false) {
             return $this->handleError($request,$handler);
         };
         

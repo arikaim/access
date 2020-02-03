@@ -34,4 +34,12 @@ interface PermissionsInterface
      * @return boolean
      */
     public function addPermission($name, $title = null, $description = null, $extension = null);
+
+    /**
+     * Get user permissions list
+     *
+     * @param integer $authId
+     * @return mixed
+    */
+    public function getUserPermissions($authId);
 }

@@ -12,6 +12,8 @@ namespace Arikaim\Core\Access\Middleware;
 use Arikaim\Core\Interfaces\SystemErrorInterface;
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
 
+use Arikaim\Core\Arikaim;
+
 /**
  *  Middleware base class
  */
@@ -51,6 +53,22 @@ class AuthMiddleware
         $this->options = $options;
     }
     
+    /**
+     * Authenticate
+     *
+     * @param array $credentials
+     * @return boolean
+     */
+    protected function authenticate(array $credentials)
+    {
+        if ($this->getAuthProvider()->authenticate($credentials) == true) {
+            Arikaim::access()->setProvider($this->getAuthProvider());
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Get auth provider
      *

@@ -67,7 +67,7 @@ class CsrfToken extends AuthMiddleware implements MiddlewareInterface
      * @param ServerRequestInterface $request
      * @return string|null
      */
-    public function getToken(ResponseInterface $request)
+    public function getToken(ServerRequestInterface $request)
     {
         $body = $request->getParsedBody();
         $body = (empty($body) == true) ? [] : $body;

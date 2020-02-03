@@ -126,6 +126,17 @@ class Access implements AccessInterface
     }
 
     /**
+     * Get user permissions
+     *
+     * @param integer|null $authId
+     * @return mixed
+     */
+    public function getUserPermissions($authId = null)
+    {
+        return $this->adapter->getUserPermissions($authId);
+    }
+
+    /**
      * Add permission item.
      *
      * @param string $name    
