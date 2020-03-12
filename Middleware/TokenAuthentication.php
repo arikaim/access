@@ -57,7 +57,7 @@ class TokenAuthentication extends AuthMiddleware implements MiddlewareInterface
             $token = (isset($vars['token']) == true) ? $vars['token'] : null;             
         }     
 
-        if (empty($token) == true) {           
+        if (empty($token) == true) {      
             $token = Cookie::get('token',$request);
         }
         

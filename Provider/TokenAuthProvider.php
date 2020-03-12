@@ -24,6 +24,7 @@ class TokenAuthProvider extends AuthProvider implements AuthProviderInterface
     const PAGE_ACCESS_TOKEN  = 0;
     const LOGIN_ACCESS_TOKEN = 1;
     const API_ACCESS_TOKEN   = 2;
+    const OAUTH_ACCESS_TOKEN = 3;
 
     /**
      * Authenticate

@@ -46,7 +46,7 @@ class SessionAuthProvider extends AuthProvider implements AuthProviderInterface
     
         return false;
     }
-  
+     
     /**
      * Logout
      *
