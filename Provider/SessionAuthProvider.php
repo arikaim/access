@@ -58,7 +58,6 @@ class SessionAuthProvider extends AuthProvider implements AuthProviderInterface
         Session::remove('auth.id');
         Session::remove('auth.login.time');
         Session::remove('auth.login.attempts');  
-        Session::restart();
     }
 
     /**
