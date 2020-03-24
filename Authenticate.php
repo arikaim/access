@@ -29,13 +29,14 @@ class Authenticate implements AuthInterface, AccessInterface
     const AUTH_JWT          = 3;
     const AUTH_TOKEN        = 4;
     const CSRF_TOKEN        = 5;
+    const OAUTH_TOKEN       = 6;
 
     /**
      * Auth name
      *
      * @var array
      */
-    private $authNames = ["none","basic","session","jwt",'token','csrf'];
+    private $authNames = ["none","basic","session","jwt",'token','csrf','oauth'];
 
     /**
      * Auth provider variable
@@ -375,7 +376,7 @@ class Authenticate implements AuthInterface, AccessInterface
     /**
      * Get auth provider class
      *
-     * @param ineteger $id
+     * @param integer $id
      * @return string|null
      */
     public function getAuthProviderClass($id)
@@ -385,7 +386,9 @@ class Authenticate implements AuthInterface, AccessInterface
             'BasicAuthProvider',
             'SessionAuthProvider',
             'JwtAuthProvider',
-            'TokenAuthProvider'
+            'TokenAuthProvider',
+            null,
+            'OauthProvider'
         ];
 
         return (isset($classes[$id]) == true) ? $classes[$id] : null;
