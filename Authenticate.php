@@ -30,13 +30,14 @@ class Authenticate implements AuthInterface, AccessInterface
     const AUTH_TOKEN        = 4;
     const CSRF_TOKEN        = 5;
     const OAUTH_TOKEN       = 6;
+    const AUTH_JWT_SESSION  = 7;
 
     /**
      * Auth name
      *
      * @var array
      */
-    private $authNames = ["none","basic","session","jwt",'token','csrf','oauth'];
+    private $authNames = ["none","basic","session","jwt",'token','csrf','oauth','jwt-session'];
 
     /**
      * Auth provider variable
@@ -346,7 +347,7 @@ class Authenticate implements AuthInterface, AccessInterface
      */
     public function resolveAuthType($type)
     {
-        if (is_string($type) == true) {
+        if (is_string($type) == true) {           
             return $this->getTypeId($type);
         }
 
@@ -360,14 +361,16 @@ class Authenticate implements AuthInterface, AccessInterface
      * @return string|null
      */
     public function getAuthMiddlewareClass($id)
-    {
+    {     
         $classes = [
             null,
             'BasicAuthentication',
             'SessionAuthentication',
             'JwtAuthentication',
             'TokenAuthentication',
-            'CsrfToken'
+            'CsrfToken',
+            null,
+            'JwtAndSessionAuthentication'
         ];
 
         return (isset($classes[$id]) == true) ? $classes[$id] : null;
@@ -388,7 +391,8 @@ class Authenticate implements AuthInterface, AccessInterface
             'JwtAuthProvider',
             'TokenAuthProvider',
             null,
-            'OauthProvider'
+            'OauthProvider',
+            'JwtAuthProvider'
         ];
 
         return (isset($classes[$id]) == true) ? $classes[$id] : null;

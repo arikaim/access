@@ -86,7 +86,7 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
     }
 
     /**
-     * Gte auth id
+     * Get auth id
      *
      * @return null|integer
      */

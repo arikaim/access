@@ -14,13 +14,13 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-use Arikaim\Core\Access\Middleware\AuthMiddleware;
+use Arikaim\Core\Access\Middleware\JwtAuthentication;
 use Arikaim\Core\Arikaim;
 
 /**
  * JWT auth middleware
  */
-class JwtAuthentication extends AuthMiddleware implements MiddlewareInterface
+class JwtAndSessionAuthentication extends JwtAuthentication implements MiddlewareInterface
 {
     /**
      * Process middleware
@@ -33,8 +33,12 @@ class JwtAuthentication extends AuthMiddleware implements MiddlewareInterface
     {      
         $token = $this->readToken($request);
 
-        if ($token === false) {    
-            return $this->handleError($request,$handler);                  
+        if ($token === false) {          
+            if (empty(Arikaim::access()->withProvider('session')->getId()) == true) {
+                return $this->handleError($request,$handler);
+            } else {
+                return $handler->handle($request);        
+            }  
         } 
 
         if ($this->authenticate(['token' => $token]) == false) {
@@ -42,24 +46,5 @@ class JwtAuthentication extends AuthMiddleware implements MiddlewareInterface
         };
         
         return $handler->handle($request);
-    }
-
-    /**
-     * Get token from request header
-     *
-     * @param \Psr\Http\Message\RequestInterface $request
-     * @return string|false Base64 encoded JSON Web Token, Session ID or false if not found.
-     */
-    protected function readToken(ServerRequestInterface $request)
-    {   
-        $headers = $request->getHeader('Authorization');
-        $header = isset($headers[0]) ? $headers[0] : "";
-    
-        if (empty($header) && function_exists("apache_request_headers")) {
-            $headers = apache_request_headers();
-            $header = isset($headers['Authorization']) ? $headers['Authorization'] : "";
-        }
-
-        return (preg_match('/Bearer\s+(.*)$/i', $header, $matches) == true) ? $matches[1] : false;
-    }
+    }    
 }
