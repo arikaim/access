@@ -101,7 +101,7 @@ class Access implements AccessInterface
      * @param string|integer $authId
      * @return boolean
      */
-    public function hasControlPanelAccess($authId = null)
+    public function hasControlPanelAccess($authId)
     {
         return $this->hasAccess(Access::CONTROL_PANEL,ACCESS::FULL,$authId);
     }
@@ -114,24 +114,24 @@ class Access implements AccessInterface
      * @param string|integer $authId 
      * @return boolean
      */
-    public function hasAccess($name, $type = null, $authId = null)
+    public function hasAccess($name, $type = null, $authId)
     {       
         list($name, $permissionType) = $this->resolvePermissionName($name);
        
         if (is_array($permissionType) == false) {           
             $permissionType = $this->resolvePermissionType($type);
         }
-    
+        
         return $this->adapter->hasPermissions($name,$authId,$permissionType);            
     }
 
     /**
      * Get user permissions
      *
-     * @param integer|null $authId
+     * @param integer $authId
      * @return mixed
      */
-    public function getUserPermissions($authId = null)
+    public function getUserPermissions($authId)
     {
         return $this->adapter->getUserPermissions($authId);
     }
