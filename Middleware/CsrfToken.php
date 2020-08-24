@@ -31,7 +31,7 @@ class CsrfToken extends AuthMiddleware implements MiddlewareInterface
     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if (in_array($request->getMethod(),['POST','PUT','DELETE','PATCH']) == true) {
+        if (\in_array($request->getMethod(),['POST','PUT','DELETE','PATCH']) == true) {
             $token = $this->getToken($request);
 
             if (Csrf::validateToken($token) == false) {   

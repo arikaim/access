@@ -174,7 +174,8 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
         if (isset($this->token['decoded'][$name]) == false) {
             return null;
         }
-        if (is_object($this->token['decoded'][$name]) == true) {            
+        
+        if (\is_object($this->token['decoded'][$name]) == true) {            
             return $this->token['decoded'][$name]->getValue();
         }
 

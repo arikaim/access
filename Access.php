@@ -101,7 +101,7 @@ class Access implements AccessInterface
      * @param string|integer $authId
      * @return boolean
      */
-    public function hasControlPanelAccess($authId)
+    public function hasControlPanelAccess($authId = null)
     {
         return $this->hasAccess(Access::CONTROL_PANEL,ACCESS::FULL,$authId);
     }
@@ -114,11 +114,11 @@ class Access implements AccessInterface
      * @param string|integer $authId 
      * @return boolean
      */
-    public function hasAccess($name, $type = null, $authId)
+    public function hasAccess($name, $type = null, $authId = null)
     {       
         list($name, $permissionType) = $this->resolvePermissionName($name);
        
-        if (is_array($permissionType) == false) {           
+        if (\is_array($permissionType) == false) {           
             $permissionType = $this->resolvePermissionType($type);
         }
         
@@ -131,7 +131,7 @@ class Access implements AccessInterface
      * @param integer $authId
      * @return mixed
      */
-    public function getUserPermissions($authId)
+    public function getUserPermissions($authId = null)
     {
         return $this->adapter->getUserPermissions($authId);
     }
@@ -162,8 +162,8 @@ class Access implements AccessInterface
         $name = $tokens[0];
         $type = (isset($tokens[1]) == true) ? $tokens[1] : Self::FULL;     
 
-        if (is_string($type) == true) {
-            $type = (strtolower($type) == 'full') ? Self::FULL : Arrays::toArray($type,",");
+        if (\is_string($type) == true) {
+            $type = (\strtolower($type) == 'full') ? Self::FULL : Arrays::toArray($type,",");
         }
         
         return [$name,$type];
@@ -177,11 +177,11 @@ class Access implements AccessInterface
      */
     protected function resolvePermissionType($type)
     {
-        if (is_array($type) == true) {
+        if (\is_array($type) == true) {
             return $type;
         }
     
-        if (is_string($type) == true) {
+        if (\is_string($type) == true) {
             $type = Arrays::toArray($type,",");
         }
 

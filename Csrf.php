@@ -46,7 +46,7 @@ class Csrf
      */
     public static function createToken() 
     {
-        $token = bin2hex(random_bytes(16));
+        $token = \bin2hex(\random_bytes(16));
         Session::set('csrf_token',$token);
 
         return $token;

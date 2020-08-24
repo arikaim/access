@@ -36,9 +36,8 @@ class JwtAndSessionAuthentication extends JwtAuthentication implements Middlewar
         if ($token === false) {          
             if (empty(Arikaim::access()->withProvider('session')->getId()) == true) {
                 return $this->handleError($request,$handler);
-            } else {
-                return $handler->handle($request);        
-            }  
+            } 
+            return $handler->handle($request);          
         } 
 
         if ($this->authenticate(['token' => $token]) == false) {

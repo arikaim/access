@@ -19,7 +19,7 @@ use Arikaim\Core\Interfaces\Access\AccessInterface;
 /**
  * Manage auth.
  */
-class Authenticate implements AuthInterface, AccessInterface
+class Authenticate implements AuthInterface
 {
     const ACCESS_NAMESPACE = "Arikaim\\Core\\Access\\";
    
@@ -201,7 +201,7 @@ class Authenticate implements AuthInterface, AccessInterface
      */
     public function withProvider($provider, $user = null, $params = [])
     {
-        if (is_string($provider) == true) {
+        if (\is_string($provider) == true) {
             $provider = $this->createProvider($provider,$user,$params);
         }
         $this->setProvider($provider);
@@ -219,11 +219,11 @@ class Authenticate implements AuthInterface, AccessInterface
      */
     protected function createProvider($name, UserProviderInterface $user = null, $params = [])
     {
-        $className = (class_exists($name) == true) ? $name : $this->getAuthProviderClass($this->resolveAuthType($name));
+        $className = (\class_exists($name) == true) ? $name : $this->getAuthProviderClass($this->resolveAuthType($name));
         $fullClassName = Self::ACCESS_NAMESPACE . "Provider\\" . $className;
         $user = (empty($user) == true) ? $this->user : $user;
 
-        return (class_exists($fullClassName) == true) ? new $fullClassName($user,$params) : null;
+        return (\class_exists($fullClassName) == true) ? new $fullClassName($user,$params) : null;
     }
 
     /**
@@ -236,13 +236,13 @@ class Authenticate implements AuthInterface, AccessInterface
      */
     public function middleware($authName, $options = [], UserProviderInterface $user = null)
     {       
-        $className = (class_exists($authName) == true) ? $authName : $this->getAuthMiddlewareClass($this->resolveAuthType($authName));
+        $className = (\class_exists($authName) == true) ? $authName : $this->getAuthMiddlewareClass($this->resolveAuthType($authName));
         $fullClassName = Self::ACCESS_NAMESPACE . "Middleware\\" . $className;
         $user = (empty($user) == true) ? $this->user : $user;
         
         $provider = $this->createProvider($authName,$user);
     
-        return (class_exists($fullClassName) == true) ? new $fullClassName($provider,$this->errorRenderer,$options) : null;
+        return (\class_exists($fullClassName) == true) ? new $fullClassName($provider,$this->errorRenderer,$options) : null;
     }
 
     /**
@@ -325,7 +325,7 @@ class Authenticate implements AuthInterface, AccessInterface
      */
     public function getTypeId($name)
     {
-        return array_search($name,$this->authNames);                 
+        return \array_search($name,$this->authNames);                 
     }
 
     /**
@@ -336,7 +336,7 @@ class Authenticate implements AuthInterface, AccessInterface
      */
     public function isValidAuthName($name)
     {
-        return (array_search($name,$this->authNames) === false) ? false : true;     
+        return (\array_search($name,$this->authNames) === false) ? false : true;     
     }
 
     /**
@@ -347,11 +347,11 @@ class Authenticate implements AuthInterface, AccessInterface
      */
     public function resolveAuthType($type)
     {
-        if (is_string($type) == true) {           
+        if (\is_string($type) == true) {           
             return $this->getTypeId($type);
         }
 
-        return (is_integer($type) == true) ? $type : null;
+        return (\is_integer($type) == true) ? $type : null;
     }
 
     /**

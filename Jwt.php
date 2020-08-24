@@ -51,8 +51,8 @@ class Jwt
      */
     private function init($expireTime = null) 
     {
-        $expireTime = ($expireTime == null) ? strtotime("+1 week") : $expireTime;
-        $tokenId = base64_encode(random_bytes(32));
+        $expireTime = ($expireTime == null) ? \strtotime("+1 week") : $expireTime;
+        $tokenId = \base64_encode(\random_bytes(32));
        
         $this->token = new Builder();
         $this->token->setIssuer(ARIKAIM_DOMAIN);

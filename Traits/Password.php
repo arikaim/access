@@ -27,7 +27,7 @@ trait Password
     {
         $algo = ($algo == null) ? $this->getEncryptPasswordAlgo() : $algo;
 
-        return (empty($algo) == true) ? $password : password_hash($password,$algo);
+        return (empty($algo) == true) ? $password : \password_hash($password,$algo);
     }
 
     /**
@@ -40,7 +40,7 @@ trait Password
     public function changePassword($id, $password)
     {       
         $model = $this->findById($id);
-        if (is_object($model) == false) {
+        if (\is_object($model) == false) {
             return false;
         }
         $model->{$this->getPasswordAttributeName()} = $this->encryptPassword($password);  
@@ -62,7 +62,7 @@ trait Password
         $hash = $this->getPassword();
         $algo = $this->getEncryptPasswordAlgo();
 
-        return (empty($algo) == true) ? ($password == $hash) : password_verify($password,$hash);      
+        return (empty($algo) == true) ? ($password == $hash) : \password_verify($password,$hash);      
     }
 
     /**
