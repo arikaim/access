@@ -21,7 +21,7 @@ use Arikaim\Core\Interfaces\Access\AccessInterface;
  */
 class Authenticate implements AuthInterface
 {
-    const ACCESS_NAMESPACE = "Arikaim\\Core\\Access\\";
+    const ACCESS_NAMESPACE = 'Arikaim\\Core\\Access\\';
    
     // auth type id
     const AUTH_BASIC        = 1;
@@ -37,7 +37,7 @@ class Authenticate implements AuthInterface
      *
      * @var array
      */
-    private $authNames = ["none","basic","session","jwt",'token','csrf','oauth','jwt-session'];
+    private $authNames = ['none','basic','session','jwt','token','csrf','oauth','jwt-session'];
 
     /**
      * Auth provider variable
@@ -220,7 +220,7 @@ class Authenticate implements AuthInterface
     protected function createProvider($name, UserProviderInterface $user = null, $params = [])
     {
         $className = (\class_exists($name) == true) ? $name : $this->getAuthProviderClass($this->resolveAuthType($name));
-        $fullClassName = Self::ACCESS_NAMESPACE . "Provider\\" . $className;
+        $fullClassName = Self::ACCESS_NAMESPACE . 'Provider\\' . $className;
         $user = (empty($user) == true) ? $this->user : $user;
 
         return (\class_exists($fullClassName) == true) ? new $fullClassName($user,$params) : null;
@@ -237,7 +237,7 @@ class Authenticate implements AuthInterface
     public function middleware($authName, $options = [], UserProviderInterface $user = null)
     {       
         $className = (\class_exists($authName) == true) ? $authName : $this->getAuthMiddlewareClass($this->resolveAuthType($authName));
-        $fullClassName = Self::ACCESS_NAMESPACE . "Middleware\\" . $className;
+        $fullClassName = Self::ACCESS_NAMESPACE . 'Middleware\\' . $className;
         $user = (empty($user) == true) ? $this->user : $user;
         
         $provider = $this->createProvider($authName,$user);

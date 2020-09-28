@@ -51,12 +51,12 @@ class Jwt
      */
     private function init($expireTime = null) 
     {
-        $expireTime = ($expireTime == null) ? \strtotime("+1 week") : $expireTime;
+        $expireTime = ($expireTime == null) ? \strtotime('+1 week') : $expireTime;
         $tokenId = \base64_encode(\random_bytes(32));
        
         $this->token = new Builder();
-        $this->token->setIssuer(ARIKAIM_DOMAIN);
-        $this->token->setAudience(ARIKAIM_DOMAIN);
+        $this->token->setIssuer(DOMAIN);
+        $this->token->setAudience(DOMAIN);
         $this->token->setId($tokenId, true);
         $this->token->setIssuedAt(time());
         $this->token->setNotBefore(time());
@@ -119,6 +119,7 @@ class Jwt
     public function verify() 
     {
         $signer = new Sha256();
+        
         return $this->token->verify($signer,$this->key);
     }
 

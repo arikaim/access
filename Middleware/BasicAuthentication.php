@@ -52,8 +52,8 @@ class BasicAuthentication extends AuthMiddleware implements MiddlewareInterface
     protected function getCredentials($request)
     {
         return [
-            'user_name' => $request->headers()->get('PHP_AUTH_USER'),
-            'password'  => $request->headers()->get('PHP_AUTH_PW')
+            'user_name' => $request->getHeader('PHP_AUTH_USER'),
+            'password'  => $request->getHeader('PHP_AUTH_PW')
         ];
     }
 }

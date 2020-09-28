@@ -35,7 +35,7 @@ class Access implements AccessInterface
     /**
      * Control panel permission
      */
-    const CONTROL_PANEL = "ControlPanel";
+    const CONTROL_PANEL = 'ControlPanel';
     
     /**
      * Permissions adapter
@@ -163,7 +163,7 @@ class Access implements AccessInterface
         $type = (isset($tokens[1]) == true) ? $tokens[1] : Self::FULL;     
 
         if (\is_string($type) == true) {
-            $type = (\strtolower($type) == 'full') ? Self::FULL : Arrays::toArray($type,",");
+            $type = (\strtolower($type) == 'full') ? Self::FULL : Arrays::toArray($type,',');
         }
         
         return [$name,$type];
@@ -182,7 +182,7 @@ class Access implements AccessInterface
         }
     
         if (\is_string($type) == true) {
-            $type = Arrays::toArray($type,",");
+            $type = Arrays::toArray($type,',');
         }
 
         return null;

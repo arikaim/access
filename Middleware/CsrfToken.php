@@ -53,7 +53,7 @@ class CsrfToken extends AuthMiddleware implements MiddlewareInterface
      */
     protected function generateToken(ServerRequestInterface $request)
     {
-        if ($this->getParam('recreate_token') == true) {
+        if ($this->getOption('recreate_token') == true) {
             $token = Csrf::createToken();
             $request = $request->withAttribute('csrf_token', $token);
         }    

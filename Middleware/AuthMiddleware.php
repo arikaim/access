@@ -95,7 +95,19 @@ class AuthMiddleware
             return $response->withHeader('Location',$redirect)->withStatus(302);                   
         }
 
-        $this->errorRenderer->renderSystemErrors($request,"AUTH_FAILED"); 
+        $this->errorRenderer->renderSystemErrors($request,'AUTH_FAILED'); 
         exit();      
+    }
+
+    /**
+     * Get option value
+     *
+     * @param string $key
+     * @param mixed|null $default
+     * @return mixed
+     */
+    protected function getOption($key, $default = null)
+    {
+        return (isset($this->options[$key]) == true) ? $this->options[$key] : $default;
     }
 }
