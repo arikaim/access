@@ -10,35 +10,19 @@
 namespace Arikaim\Core\Access;
 
 use Arikaim\Core\Access\Provider\SessionAuthProvider;
+
 use Arikaim\Core\Access\Interfaces\UserProviderInterface;
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
-use Arikaim\Core\Interfaces\SystemErrorInterface;
 use Arikaim\Core\Interfaces\Access\AuthInterface;
 use Arikaim\Core\Interfaces\Access\AccessInterface;
+
+use Arikaim\Core\Access\AuthFactory;
 
 /**
  * Manage auth.
  */
 class Authenticate implements AuthInterface
 {
-    const ACCESS_NAMESPACE = 'Arikaim\\Core\\Access\\';
-   
-    // auth type id
-    const AUTH_BASIC        = 1;
-    const AUTH_SESSION      = 2;
-    const AUTH_JWT          = 3;
-    const AUTH_TOKEN        = 4;
-    const CSRF_TOKEN        = 5;
-    const OAUTH_TOKEN       = 6;
-    const AUTH_JWT_SESSION  = 7;
-
-    /**
-     * Auth name
-     *
-     * @var array
-     */
-    private $authNames = ['none','basic','session','jwt','token','csrf','oauth','jwt-session'];
-
     /**
      * Auth provider variable
      *
@@ -61,13 +45,6 @@ class Authenticate implements AuthInterface
     private $access;
 
     /**
-     * System error renderer
-     *
-     * @var SystemErrorInterface
-     */
-    private $errorRenderer;
-
-    /**
      * Constructor
      *
      * @param UserProviderInterface $user
@@ -77,13 +54,11 @@ class Authenticate implements AuthInterface
     public function __construct(
         UserProviderInterface $user, 
         AccessInterface $access, 
-        SystemErrorInterface $errorRenderer,
         AuthProviderInterface $provider = null)
     {       
         $this->user = $user;
         $this->provider = ($provider == null) ? new SessionAuthProvider($user) : $provider;   
         $this->access = $access;
-        $this->errorRenderer = $errorRenderer;
     }
 
     /**
@@ -201,7 +176,7 @@ class Authenticate implements AuthInterface
      */
     public function withProvider($provider, $user = null, $params = [])
     {
-        if (\is_string($provider) == true) {
+        if (\is_string($provider) == true || \is_integer($provider) == true) {
             $provider = $this->createProvider($provider,$user,$params);
         }
         $this->setProvider($provider);
@@ -219,11 +194,7 @@ class Authenticate implements AuthInterface
      */
     protected function createProvider($name, UserProviderInterface $user = null, $params = [])
     {
-        $className = (\class_exists($name) == true) ? $name : $this->getAuthProviderClass($this->resolveAuthType($name));
-        $fullClassName = Self::ACCESS_NAMESPACE . 'Provider\\' . $className;
-        $user = (empty($user) == true) ? $this->user : $user;
-
-        return (\class_exists($fullClassName) == true) ? new $fullClassName($user,$params) : null;
+        return AuthFactory::createProvider($name,$user,$params);       
     }
 
     /**
@@ -236,13 +207,9 @@ class Authenticate implements AuthInterface
      */
     public function middleware($authName, $options = [], UserProviderInterface $user = null)
     {       
-        $className = (\class_exists($authName) == true) ? $authName : $this->getAuthMiddlewareClass($this->resolveAuthType($authName));
-        $fullClassName = Self::ACCESS_NAMESPACE . 'Middleware\\' . $className;
-        $user = (empty($user) == true) ? $this->user : $user;
-        
-        $provider = $this->createProvider($authName,$user);
-    
-        return (\class_exists($fullClassName) == true) ? new $fullClassName($provider,$this->errorRenderer,$options) : null;
+        $user = $user ?? $this->user;
+
+        return AuthFactory::createMiddleware($authName,$user,$options);       
     }
 
     /**
@@ -314,29 +281,7 @@ class Authenticate implements AuthInterface
      */
     public function getAuthName($auth)
     {
-        return (isset($this->authNames[$auth]) == true) ? $this->authNames[$auth] : false;          
-    }
-
-    /**
-     * Return auth type id
-     *
-     * @param string $name
-     * @return int
-     */
-    public function getTypeId($name)
-    {
-        return \array_search($name,$this->authNames);                 
-    }
-
-    /**
-     * Check if auth name is valid 
-     *
-     * @param string $name
-     * @return boolean
-     */
-    public function isValidAuthName($name)
-    {
-        return (\array_search($name,$this->authNames) === false) ? false : true;     
+        return AuthFactory::getAuthName($auth);        
     }
 
     /**
@@ -347,54 +292,6 @@ class Authenticate implements AuthInterface
      */
     public function resolveAuthType($type)
     {
-        if (\is_string($type) == true) {           
-            return $this->getTypeId($type);
-        }
-
-        return (\is_integer($type) == true) ? $type : null;
-    }
-
-    /**
-     * Get middleware class name
-     *
-     * @param integer $id
-     * @return string|null
-     */
-    public function getAuthMiddlewareClass($id)
-    {     
-        $classes = [
-            null,
-            'BasicAuthentication',
-            'SessionAuthentication',
-            'JwtAuthentication',
-            'TokenAuthentication',
-            'CsrfToken',
-            null,
-            'JwtAndSessionAuthentication'
-        ];
-
-        return (isset($classes[$id]) == true) ? $classes[$id] : null;
-    }
-
-    /**
-     * Get auth provider class
-     *
-     * @param integer $id
-     * @return string|null
-     */
-    public function getAuthProviderClass($id)
-    {
-        $classes = [
-            null,
-            'BasicAuthProvider',
-            'SessionAuthProvider',
-            'JwtAuthProvider',
-            'TokenAuthProvider',
-            null,
-            'OauthProvider',
-            'JwtAuthProvider'
-        ];
-
-        return (isset($classes[$id]) == true) ? $classes[$id] : null;
+        return AuthFactory::resolveAuthType($type);
     }
 }

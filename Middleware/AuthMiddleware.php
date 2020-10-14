@@ -9,10 +9,8 @@
 */
 namespace Arikaim\Core\Access\Middleware;
 
-use Arikaim\Core\Interfaces\SystemErrorInterface;
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
-
-use Arikaim\Core\Arikaim;
+use Arikaim\Core\Http\Response;
 
 /**
  *  Middleware base class
@@ -22,16 +20,9 @@ class AuthMiddleware
     /**
      * Auth provider
      *
-     * @var Arikaim\Core\Access\Interfaces\AuthProviderInterface
+     * @var AuthProviderInterface
      */
     protected $auth;
-
-    /**
-     * System error renderer
-     *
-     * @var SystemErrorInterface
-     */
-    protected $errorRenderer;
 
     /**
      * Options
@@ -43,13 +34,12 @@ class AuthMiddleware
     /**
      * Constructor
      *
-     * @param SystemErrorInterface $errorRenderer
+     * @param AuthProviderInterface $auth
      * @param array $options
      */
-    public function __construct(AuthProviderInterface $auth, SystemErrorInterface $errorRenderer, $options = [])
+    public function __construct(AuthProviderInterface $auth, $options = [])
     {
-        $this->auth = $auth;
-        $this->errorRenderer = $errorRenderer;
+        $this->auth = $auth;     
         $this->options = $options;
     }
     
@@ -61,18 +51,13 @@ class AuthMiddleware
      */
     protected function authenticate(array $credentials)
     {
-        if ($this->getAuthProvider()->authenticate($credentials) == true) {
-            Arikaim::access()->setProvider($this->getAuthProvider());
-            return true;
-        }
-
-        return false;
+        return ($this->getAuthProvider()->authenticate($credentials) == true);                   
     }
 
     /**
      * Get auth provider
      *
-     * @return Arikaim\Core\Access\Interfaces\AuthProviderInterface
+     * @return AuthProviderInterface
      */
     public function getAuthProvider()
     {
@@ -87,16 +72,17 @@ class AuthMiddleware
      * @return string
      */
     protected function handleError($request, $handler)
-    {
+    {      
         $redirect = (isset($this->options['redirect']) == true) ? $this->options['redirect'] : null;
+    
         if (empty($redirect) == false) {
             $response = $handler->handle($request);
-
             return $response->withHeader('Location',$redirect)->withStatus(302);                   
         }
 
-        $this->errorRenderer->renderSystemErrors($request,'AUTH_FAILED'); 
-        exit();      
+        $response = Response::create();
+    
+        return $response->withStatus(401); 
     }
 
     /**
