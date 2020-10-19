@@ -194,6 +194,7 @@ class Authenticate implements AuthInterface
      */
     protected function createProvider($name, UserProviderInterface $user = null, $params = [])
     {
+        $user = $user ?? $this->user;
         return AuthFactory::createProvider($name,$user,$params);       
     }
 
