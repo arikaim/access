@@ -160,7 +160,7 @@ class Access implements AccessInterface
     {
         $tokens = explode(':',$name);
         $name = $tokens[0];
-        $type = (isset($tokens[1]) == true) ? $tokens[1] : Self::FULL;     
+        $type = $tokens[1] ?? Self::FULL;     
 
         if (\is_string($type) == true) {
             $type = (\strtolower($type) == 'full') ? Self::FULL : Arrays::toArray($type,',');

@@ -83,7 +83,8 @@ class Jwt
     public function createToken() 
     {    
         $signer = new Sha256();
-        $this->token->sign($signer, $this->key);
+        $this->token->sign($signer,$this->key);
+        
         return (string)$this->token->getToken();
     }
     

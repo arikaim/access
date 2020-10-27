@@ -27,11 +27,11 @@ class OauthProvider extends AuthProvider implements AuthProviderInterface
     public function authenticate(array $credentials)
     {
         $this->user = $this->getProvider()->getUserByCredentials($credentials);
-        $loginAttempts = $this->getLoginAttempts() + 1;
-        Session::set('auth.login.attempts',$loginAttempts);
-
+        
         if ($this->user === false) {
+            $loginAttempts = $this->getLoginAttempts() + 1;       
             Session::set('auth.login.attempts',$loginAttempts);
+            
             return false;
         }
       

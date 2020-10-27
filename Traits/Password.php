@@ -25,7 +25,7 @@ trait Password
      */
     public function encryptPassword($password, $algo = null) 
     {
-        $algo = ($algo == null) ? $this->getEncryptPasswordAlgo() : $algo;
+        $algo = $algo ?? $this->getEncryptPasswordAlgo();
 
         return (empty($algo) == true) ? $password : \password_hash($password,$algo);
     }
@@ -72,7 +72,7 @@ trait Password
      */
     public function getPasswordAttributeName()
     {
-        return (isset($this->passwordColumn) == true) ? $this->passwordColumn : 'password';
+        return $this->passwordColumn ?? 'password';
     }
 
     /**
@@ -82,7 +82,7 @@ trait Password
      */
     public function getEncryptPasswordAlgo()
     {
-        return (isset($this->passwordEncryptAlgo) == true) ? $this->passwordEncryptAlgo : PASSWORD_BCRYPT;
+        return $this->passwordEncryptAlgo ?? PASSWORD_BCRYPT;
     }
 
     /**

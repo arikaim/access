@@ -71,7 +71,7 @@ class CsrfToken extends AuthMiddleware implements MiddlewareInterface
     {
         $body = $request->getParsedBody();
         $body = (empty($body) == true) ? [] : $body;
-        $token = isset($body['csrf_token']) ? $body['csrf_token'] : null;
+        $token = $body['csrf_token'] ?? null;
 
         if (empty($token) == true) {          
             $token = $request->getHeaderLine('X-XSRF-TOKEN');

@@ -34,6 +34,7 @@ class TokenAuthentication extends AuthMiddleware implements MiddlewareInterface
         $token = $this->readToken($request);
 
         if ($this->authenticate(['token' => $token]) === false) {   
+            echo "handle";          
             return $this->handleError($request,$handler);
         }
 
@@ -54,7 +55,7 @@ class TokenAuthentication extends AuthMiddleware implements MiddlewareInterface
         if (empty($token) == true) {
             // try from requets body 
             $vars = $request->getParsedBody();
-            $token = (isset($vars['token']) == true) ? $vars['token'] : null;             
+            $token = $vars['token'] ?? null;             
         }     
 
         if (empty($token) == true) {      

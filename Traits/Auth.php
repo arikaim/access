@@ -23,7 +23,7 @@ trait Auth
      */
     public function getAuthIdName()
     {
-        return (isset($this->authIdColumn) == true) ? $this->authIdColumn : 'id';
+        return $this->authIdColumn ?? 'id';
     }
 
     /**

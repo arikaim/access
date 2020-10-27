@@ -27,7 +27,7 @@ abstract class AuthProvider implements AuthProviderInterface
     /**
      * Current auth user
      *
-     * @return UserProviderInterface
+     * @var UserProviderInterface|null
     */
     protected $user;
 
@@ -65,11 +65,12 @@ abstract class AuthProvider implements AuthProviderInterface
      * Get param
      *
      * @param string $name
+     * @param mixed $default
      * @return mixed|null
      */
-    public function getParam($name)
+    public function getParam($name, $default = null)
     {
-        return (isset($this->parms[$name]) == true) ? $this->parms[$name] : null;
+        return $this->parms[$name] ?? $default;
     }
 
     /**

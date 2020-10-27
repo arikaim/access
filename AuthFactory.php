@@ -25,7 +25,20 @@ class AuthFactory
     const AUTH_TOKEN        = 4;
     const CSRF_TOKEN        = 5;
     const OAUTH_TOKEN       = 6;
-    const AUTH_JWT_SESSION  = 7;
+
+    /**
+     * Providers object pool
+     *
+     * @var array
+     */
+    private static $providers;
+
+    /**
+     * Middleware object pool
+     *
+     * @var array
+     */
+    private static $middleware;
 
     /**
      * Auth name
@@ -39,8 +52,7 @@ class AuthFactory
         'jwt',
         'token',
         'csrf',
-        'oauth',
-        'jwt-session'
+        'oauth'
     ];
 
     /**
@@ -55,8 +67,7 @@ class AuthFactory
         'JwtAuthProvider',
         'TokenAuthProvider',
         null,
-        'OauthProvider',
-        'JwtAuthProvider'
+        'OauthProvider'
     ];
 
     /**
@@ -70,9 +81,7 @@ class AuthFactory
         'SessionAuthentication',
         'JwtAuthentication',
         'TokenAuthentication',
-        'CsrfToken',
-        null,
-        'JwtAndSessionAuthentication'
+        'CsrfToken'
     ];
 
     /**
@@ -85,10 +94,15 @@ class AuthFactory
      */
     public static function createProvider($name, UserProviderInterface $user, array $params = [])
     {
+        if (isset(Self::$providers[$name]) == true) {
+            return Self::$providers[$name];
+        }
         $className = (\class_exists($name) == true) ? $name : Self::getAuthProviderClass(Self::resolveAuthType($name));
         $fullClassName = Self::ACCESS_NAMESPACE . 'Provider\\' . $className;
     
-        return (\class_exists($fullClassName) == true) ? new $fullClassName($user,$params) : null;
+        Self::$providers[$name] = (\class_exists($fullClassName) == true) ? new $fullClassName($user,$params) : null;
+        
+        return Self::$providers[$name];
     }
 
     /**
@@ -101,12 +115,17 @@ class AuthFactory
      */
     public static function createMiddleware($authName, UserProviderInterface $user, $options = [])
     {       
+        if (isset(Self::$middleware[$authName]) == true) {
+            return Self::$middleware[$authName];
+        }
+
         $className = (\class_exists($authName) == true) ? $authName : Self::getAuthMiddlewareClass(Self::resolveAuthType($authName));
         $fullClassName = Self::ACCESS_NAMESPACE . 'Middleware\\' . $className;
       
         $provider = Self::createProvider($authName,$user);
-       
-        return (\class_exists($fullClassName) == true) ? new $fullClassName($provider,$options) : null;
+        Self::$middleware[$authName] = (\class_exists($fullClassName) == true) ? new $fullClassName($provider,$options) : null;
+
+        return Self::$middleware[$authName];
     }
 
     /**
@@ -128,7 +147,7 @@ class AuthFactory
      */
     public static function isValidAuthName($name)
     {
-        return (\array_search($name,Self::$authNames) === false) ? false : true;     
+        return (\array_search($name,Self::$authNames) !== false);
     }
 
     /**

@@ -35,7 +35,7 @@ class TokenAuthProvider extends AuthProvider implements AuthProviderInterface
     public function authenticate(array $credentials)
     {  
         $this->user = $this->getProvider()->getUserByCredentials($credentials);
-
+    
         return ($this->user !== false);             
     }
   

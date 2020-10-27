@@ -9,6 +9,9 @@
 */
 namespace Arikaim\Core\Access\Middleware;
 
+use Psr\Http\Message\ServerRequestInterface;
+use Slim\Exception\HttpNotFoundException;
+
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
 use Arikaim\Core\Http\Response;
 
@@ -37,7 +40,7 @@ class AuthMiddleware
      * @param AuthProviderInterface $auth
      * @param array $options
      */
-    public function __construct(AuthProviderInterface $auth, $options = [])
+    public function __construct(AuthProviderInterface $auth, array $options = [])
     {
         $this->auth = $auth;     
         $this->options = $options;
@@ -70,18 +73,20 @@ class AuthMiddleware
      * @param ServerRequestInterface  $request
      * @param RequestHandlerInterface $handler
      * @return string
+     * @throws HttpNotFoundException
      */
     protected function handleError($request, $handler)
     {      
-        $redirect = (isset($this->options['redirect']) == true) ? $this->options['redirect'] : null;
-    
-        if (empty($redirect) == false) {
-            $response = $handler->handle($request);
+        $redirect = $this->options['redirect'] ?? false;
+        $response = Response::create();
+
+        if (empty($redirect) == false) { 
+            // redirect         
             return $response->withHeader('Location',$redirect)->withStatus(302);                   
         }
 
-        $response = Response::create();
-    
+        throw new HttpNotFoundException($request);
+        
         return $response->withStatus(401); 
     }
 
@@ -94,6 +99,6 @@ class AuthMiddleware
      */
     protected function getOption($key, $default = null)
     {
-        return (isset($this->options[$key]) == true) ? $this->options[$key] : $default;
+        return $this->options[$key] ?? $default;
     }
 }

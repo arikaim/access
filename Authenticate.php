@@ -115,7 +115,7 @@ class Authenticate implements AuthInterface
      */
     public function getUserPermissions($authId = null)
     {
-        $authId = (empty($authId) == true) ? $this->getId() : $authId;
+        $authId = $authId ?? $this->getId();
 
         return $this->access->getUserPermissions($authId);     
     }
@@ -129,7 +129,7 @@ class Authenticate implements AuthInterface
     */
     public function hasAccess($name, $type = null, $authId = null)
     {
-        $authId = (empty($authId) == true) ? $this->getId() : $authId;
+        $authId = $authId ?? $this->getId();
       
         return (empty($authId) == true) ? false : $this->access->hasAccess($name,$type,$authId);
     }

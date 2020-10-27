@@ -52,11 +52,11 @@ class JwtAuthentication extends AuthMiddleware implements MiddlewareInterface
     protected function readToken(ServerRequestInterface $request)
     {   
         $headers = $request->getHeader('Authorization');
-        $header = isset($headers[0]) ? $headers[0] : '';
+        $header = $headers[0] ?? '';
     
         if (empty($header) && \function_exists('apache_request_headers')) {
             $headers = \apache_request_headers();
-            $header = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+            $header = $headers['Authorization'] ?? '';
         }
 
         return (\preg_match('/Bearer\s+(.*)$/i', $header, $matches) == true) ? $matches[1] : false;
