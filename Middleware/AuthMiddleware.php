@@ -82,7 +82,13 @@ class AuthMiddleware
 
         if (empty($redirect) == false) { 
             // redirect         
-            return $response->withHeader('Location',$redirect)->withStatus(302);                   
+            return $response
+                ->withoutHeader('Cache-Control')
+                ->withHeader('Cache-Control','no-cache, must-revalidate')
+                ->withHeader('Content-Length','0')    
+                ->withHeader('Expires','Sat, 26 Jul 1997 05:00:00 GMT')        
+                ->withHeader('Location',$redirect)
+                ->withStatus(307);                 
         }
 
         throw new HttpNotFoundException($request);
