@@ -11,32 +11,18 @@ namespace Arikaim\Core\Access;
 
 use Arikaim\Core\Interfaces\Access\AccessInterface;
 use Arikaim\Core\Access\Interfaces\PermissionsInterface;
+use Arikaim\Core\Access\Interfaces\UserProviderInterface;
+use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
 
+use Arikaim\Core\Access\Provider\SessionAuthProvider;
 use Arikaim\Core\Collection\Arrays;
+use Arikaim\Core\Access\AuthFactory;
 
 /**
  * Manage permissions.
  */
 class Access implements AccessInterface
-{
-    /**
-     *  Full permissions
-     */
-    const FULL = ['read','write','delete','execute'];
-    
-    /**
-     * Read
-     */
-    const READ      = ['read'];
-    const WRITE     = ['write'];
-    const DELETE    = ['delete'];
-    const EXECUTE   = ['execute'];
-    
-    /**
-     * Control panel permission
-     */
-    const CONTROL_PANEL = 'ControlPanel';
-    
+{ 
     /**
      * Permissions adapter
      *
@@ -45,13 +31,123 @@ class Access implements AccessInterface
     private $adapter;
 
     /**
+     * Auth user
+     *
+     * @var UserProviderInterface
+    */
+    private $user;
+
+    /**
+     * Undocumented variable
+     *
+     * @var AuthProviderInterface|null
+     */
+    private $provider;
+
+    /**
+     * Constructor
+     * 
+     * @param PermissionsInterface $adapter
+    */
+    public function __construct(
+        PermissionsInterface $adapter, 
+        UserProviderInterface $user, 
+        ?AuthProviderInterface $provider = null
+    ) 
+    {
+        $this->adapter = $adapter;  
+        $this->user = $user;
+        $this->provider = ($provider == null) ? new SessionAuthProvider($user) : $provider;   
+    }
+
+    /**
+     * Auth user 
+     *
+     * @param array $credentials
+     * @return bool
+     */
+    public function authenticate(array $credentials): bool
+    {
+        return $this->provider->authenticate($credentials);
+    }
+
+    /**
+     * Create auth middleware
+     *
+     * @param string $authName
+     * @param array $options
+     * @param UserProviderInterface|null $user
+     * @return object|null
+     */
+    public function middleware($authName, array $options = [], ?UserProviderInterface $user = null)
+    {       
+        $user = $user ?? $this->user;
+
+        return AuthFactory::createMiddleware($authName,$user,$options);       
+    }
+
+    /**
+     * Change auth provider
+     *
+     * @param AuthProviderInterface|string $provider
+     * @param UserProviderInterface|null $user
+     * @param array $params
+     * @return AuthProviderInterface
+     */
+    public function withProvider($provider, $user = null, array $params = [])
+    {
+        if (\is_string($provider) == true || \is_integer($provider) == true) {
+            $provider = $this->createProvider($provider,$user,$params);
+        }
+        $this->setProvider($provider);
+
+        return $provider;
+    }
+
+    /**
+     * Create auth provider
+     *
+     * @param string $name
+     * @param UserProviderInterface|null $user
+     * @param array $params
+     * @return object|null
+     */
+    protected function createProvider(string $name, ?UserProviderInterface $user = null, array $params = [])
+    {
+        $user = $user ?? $this->user;
+
+        return AuthFactory::createProvider($name,$user,$params);       
+    }
+
+    /**
+     * Set auth provider
+     *
+     * @param AuthProviderInterface $provider
+     * @return void
+     */
+    public function setProvider(AuthProviderInterface $provider)
+    {
+        $this->provider = $provider;
+    }
+
+    /**
+     * Return auth provider
+     *
+     * @return AuthProviderInterface
+     */
+    public function getProvider()
+    {
+        return $this->provider;
+    }
+
+    /**
      * Full Permissions 
      *
      * @return array
      */
-    public function getFullPermissions()
+    public function getFullPermissions(): array
     {
-        return Self::FULL;
+        return AccessInterface::FULL;
     }
 
     /**
@@ -59,19 +155,9 @@ class Access implements AccessInterface
      *
      * @return string
      */
-    public function getControlPanelPermission()
+    public function getControlPanelPermission(): string
     {
-        return Self::CONTROL_PANEL;
-    }
-
-    /**
-     * Constructor
-     * 
-     * @param PermissionsInterface $adapter
-     */
-    public function __construct(PermissionsInterface $adapter) 
-    {
-        $this->adapter = $adapter;         
+        return AccessInterface::CONTROL_PANEL;
     }
 
     /**
@@ -80,7 +166,7 @@ class Access implements AccessInterface
      * @param PermissionsInterface $adapter
      * @return void
      */
-    public function setProvider(PermissionsInterface $adapter)
+    public function setAdapter(PermissionsInterface $adapter): void
     {
         $this->adapter = $adapter;
     }
@@ -98,41 +184,54 @@ class Access implements AccessInterface
     /**
      * Check if current loged user have control panel access
      *
-     * @param string|integer $authId
+     * @param string|integer|null $authId
      * @return boolean
      */
-    public function hasControlPanelAccess($authId = null)
+    public function hasControlPanelAccess($authId = null): bool
     {
-        return $this->hasAccess(Access::CONTROL_PANEL,ACCESS::FULL,$authId);
+        $authId = (empty($authId) == true) ? $this->getId() : $authId;
+        if (empty($authId) == true) {
+            return false;
+        }
+
+        return $this->hasAccess(AccessInterface::CONTROL_PANEL,AccessInterface::FULL,$authId);
     }
     
     /**
      * Check access 
      *
-     * @param string $name Permission name
-     * @param string|array $type PermissionType (read,write,execute,delete)   
+     * @param string|int $name Permission name
+     * @param string|array|null $type PermissionType (read,write,execute,delete)   
      * @param string|integer $authId 
      * @return boolean
      */
-    public function hasAccess($name, $type = null, $authId = null)
+    public function hasAccess($name, $type = null, $authId = null): bool
     {       
+        $authId = $authId ?? $this->getId();
+
         list($name, $permissionType) = $this->resolvePermissionName($name);
        
         if (\is_array($permissionType) == false) {           
             $permissionType = $this->resolvePermissionType($type);
         }
         
+        if (\is_array($permissionType) == false) {
+            return false;
+        }
+
         return $this->adapter->hasPermissions($name,$authId,$permissionType);            
     }
 
     /**
      * Get user permissions
      *
-     * @param integer $authId
+     * @param integer|null $authId
      * @return mixed
      */
     public function getUserPermissions($authId = null)
     {
+        $authId = $authId ?? $this->getId();
+
         return $this->adapter->getUserPermissions($authId);
     }
 
@@ -145,7 +244,7 @@ class Access implements AccessInterface
      * @param string|null $extension
      * @return boolean
      */
-    public function addPermission($name, $title = null, $description = null, $extension = null)
+    public function addPermission(string $name, ?string $title = null, ?string $description = null, ?string $extension = null): bool
     {
         return $this->adapter->addPermission($name,$title,$description,$extension);
     }
@@ -156,14 +255,14 @@ class Access implements AccessInterface
      * @param string $name
      * @return array
      */
-    public function resolvePermissionName($name)
+    public function resolvePermissionName(string $name): array
     {
         $tokens = explode(':',$name);
         $name = $tokens[0];
-        $type = $tokens[1] ?? Self::FULL;     
+        $type = $tokens[1] ?? AccessInterface::FULL;     
 
         if (\is_string($type) == true) {
-            $type = (\strtolower($type) == 'full') ? Self::FULL : Arrays::toArray($type,',');
+            $type = (\strtolower($type) == 'full') ? AccessInterface::FULL : Arrays::toArray($type,',');
         }
         
         return [$name,$type];
@@ -175,7 +274,7 @@ class Access implements AccessInterface
      * @param string|array $type
      * @return array|null
      */
-    protected function resolvePermissionType($type)
+    protected function resolvePermissionType($type): ?array
     {
         if (\is_array($type) == true) {
             return $type;
@@ -186,5 +285,80 @@ class Access implements AccessInterface
         }
 
         return null;
+    }
+
+    
+    
+    
+    /**
+     * Logout
+     *
+     * @return void
+     */
+    public function logout(): void
+    {
+        $this->provider->logout();
+    }
+
+    /**
+     * Get logged user
+     *
+     * @return mixed|null
+     */
+    public function getUser()
+    {
+        return $this->provider->getUser();
+    }
+
+    /**
+     * Get login attempts
+     *
+     * @return null|integer
+     */
+    public function getLoginAttempts(): ?int
+    {
+        return $this->provider->getLoginAttempts();
+    }
+
+    /**
+     * Get auth id
+     *
+     * @return null|integer
+     */
+    public function getId()
+    {
+        return $this->provider->getId();
+    }
+
+    /**
+     * Return true if user is logged
+     *
+     * @return boolean
+     */
+    public function isLogged(): bool
+    {
+        return !empty($this->getId());
+    }
+
+    /**
+     * Return auth name
+     *
+     * @param int $auth
+     * @return string|null
+     */
+    public function getAuthName($auth): ?string
+    {
+        return AuthFactory::getAuthName($auth);        
+    }
+
+    /**
+     * Resolve auth type
+     *
+     * @param string|integer $type
+     * @return null|integer
+     */
+    public function resolveAuthType($type): ?int
+    {
+        return AuthFactory::resolveAuthType($type);
     }
 }   

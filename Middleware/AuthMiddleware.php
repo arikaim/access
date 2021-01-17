@@ -103,7 +103,7 @@ class AuthMiddleware
      * @param mixed|null $default
      * @return mixed
      */
-    protected function getOption($key, $default = null)
+    protected function getOption(string $key, $default = null)
     {
         return $this->options[$key] ?? $default;
     }

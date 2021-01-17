@@ -26,7 +26,7 @@ interface UserProviderInterface
      *
      * @return string
      */
-    public function getAuthIdName();
+    public function getAuthIdName(): string;
 
     /**
      * Get user credentials
@@ -42,7 +42,7 @@ interface UserProviderInterface
      * @param string $password
      * @return bool
      */
-    public function verifyPassword($password);
+    public function verifyPassword(string $password): bool;
 
     /**
      * Return user details by auth id

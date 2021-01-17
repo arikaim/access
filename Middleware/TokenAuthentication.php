@@ -45,9 +45,9 @@ class TokenAuthentication extends AuthMiddleware implements MiddlewareInterface
      * Get token from request header or cookies
      *
      * @param ServerRequestInterface $request
-     * @return string
+     * @return string|null
      */
-    protected function readToken(ServerRequestInterface $request)
+    protected function readToken(ServerRequestInterface $request): ?string
     {   
         $route = $request->getAttribute('route');
         $token = $route->getArgument('token'); 

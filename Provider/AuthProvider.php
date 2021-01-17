@@ -44,7 +44,7 @@ abstract class AuthProvider implements AuthProviderInterface
      * @param UserProviderInterface $user
      * @param array $params
      */
-    public function __construct(UserProviderInterface $userProvider, $params = [])
+    public function __construct(UserProviderInterface $userProvider, array $params = [])
     {       
         $this->userProvider = $userProvider;
         $this->user = null;
@@ -57,7 +57,7 @@ abstract class AuthProvider implements AuthProviderInterface
      *
      * @return void
      */
-    protected function init()
+    protected function init(): void
     {
     }
 
@@ -68,7 +68,7 @@ abstract class AuthProvider implements AuthProviderInterface
      * @param mixed $default
      * @return mixed|null
      */
-    public function getParam($name, $default = null)
+    public function getParam(string $name, $default = null)
     {
         return $this->parms[$name] ?? $default;
     }
@@ -108,7 +108,7 @@ abstract class AuthProvider implements AuthProviderInterface
      *
      * @return void
      */
-    public function setProvider(UserProviderInterface $userProvider)
+    public function setProvider(UserProviderInterface $userProvider): void
     {
         $this->userProvider = $userProvider;
     }
@@ -118,7 +118,7 @@ abstract class AuthProvider implements AuthProviderInterface
      *
      * @return integer|null
      */
-    public function getLoginAttempts()
+    public function getLoginAttempts(): ?int
     {
         return null;  
     }
@@ -129,12 +129,12 @@ abstract class AuthProvider implements AuthProviderInterface
      * @param array $credentials
      * @return bool
      */
-    abstract public function authenticate(array $credentials);
+    abstract public function authenticate(array $credentials): bool;
     
     /**
      * Logout
      *
      * @return void
      */
-    abstract public function logout();
+    abstract public function logout(): void;
 }

@@ -28,7 +28,7 @@ class Jwt
     /**
      * JWT key
      *
-     * @var strin
+     * @var string
      */
     private $key;
 
@@ -37,7 +37,7 @@ class Jwt
      *
      * @param int|null $expireTime Expire time stamp, default value 1 month
      */
-    public function __construct($expireTime = null, $key)
+    public function __construct($expireTime = null, string $key)
     {
         $this->key = $key;
         $this->init($expireTime);
@@ -49,7 +49,7 @@ class Jwt
      * @param int|null $expireTime
      * @return void
      */
-    private function init($expireTime = null) 
+    private function init($expireTime = null): void 
     {
         $expireTime = ($expireTime == null) ? \strtotime('+1 week') : $expireTime;
         $tokenId = \base64_encode(\random_bytes(32));
@@ -70,7 +70,7 @@ class Jwt
      * @param mixed $value
      * @return void
      */
-    public function set($key,$value) 
+    public function set(string $key, $value): void 
     {        
         $this->token->set($key,$value);
     }
@@ -80,7 +80,7 @@ class Jwt
      *
      * @return string
      */
-    public function createToken() 
+    public function createToken(): string 
     {    
         $signer = new Sha256();
         $this->token->sign($signer,$this->key);
@@ -93,9 +93,9 @@ class Jwt
      *
      * @param string $token
      * @param boolean $verify
-     * @return boolean
+     * @return mixed
      */
-    public function decodeToken($token, $verify = true)
+    public function decodeToken(string $token, bool $verify = true)
     {
         try {
             $parser = new Parser();
@@ -117,7 +117,7 @@ class Jwt
      *
      * @return boolean
      */
-    public function verify() 
+    public function verify(): bool 
     {
         $signer = new Sha256();
         
@@ -128,7 +128,7 @@ class Jwt
      * Validate token data
      *
      * @param mixed $data
-     * @return void
+     * @return mixed
      */
     public function validate($data) 
     {

@@ -87,7 +87,7 @@ class AuthFactory
     /**
      * Create auth provider
      *
-     * @param string $name
+     * @param string|integer $name
      * @param UserProviderInterface $user
      * @param array $params
      * @return object|null
@@ -108,12 +108,12 @@ class AuthFactory
     /**
      * Create auth middleware
      *
-     * @param string $authName   
+     * @param string|integer $authName   
      * @param UserProviderInterface $user
      * @param array $options
      * @return object|null
      */
-    public static function createMiddleware($authName, UserProviderInterface $user, $options = [])
+    public static function createMiddleware($authName, UserProviderInterface $user, array $options = [])
     {       
         if (isset(Self::$middleware[$authName]) == true) {
             return Self::$middleware[$authName];
@@ -134,9 +134,9 @@ class AuthFactory
      * @param string $name
      * @return int
      */
-    public static function getTypeId($name)
+    public static function getTypeId(string $name): int
     {
-        return \array_search($name,Self::$authNames);                 
+        return (int)\array_search($name,Self::$authNames);                 
     }
 
     /**
@@ -145,7 +145,7 @@ class AuthFactory
      * @param string $name
      * @return boolean
      */
-    public static function isValidAuthName($name)
+    public static function isValidAuthName(string $name): bool
     {
         return (\array_search($name,Self::$authNames) !== false);
     }
@@ -156,7 +156,7 @@ class AuthFactory
      * @param string|integer $type
      * @return null|integer
      */
-    public static function resolveAuthType($type)
+    public static function resolveAuthType($type): ?int
     {
         if (\is_string($type) == true) {           
             return Self::getTypeId($type);
@@ -169,11 +169,11 @@ class AuthFactory
      * Return auth name
      *
      * @param int $auth
-     * @return string
+     * @return string|null
      */
-    public static function getAuthName($auth)
+    public static function getAuthName($auth): ?string
     {
-        return Self::$authNames[$auth] ?? false;          
+        return Self::$authNames[$auth] ?? null;          
     }
 
     /**
@@ -182,7 +182,7 @@ class AuthFactory
      * @param integer $id
      * @return string
      */
-    public static function getAuthMiddlewareClass($id)
+    public static function getAuthMiddlewareClass($id): string
     {     
         return Self::$middlewareClasses[$id] ?? '';
     }
@@ -191,9 +191,9 @@ class AuthFactory
      * Get auth provider class
      *
      * @param integer $id
-     * @return string|false
+     * @return string
      */
-    public static function getAuthProviderClass($id)
+    public static function getAuthProviderClass($id): string
     {
         return Self::$providerClasses[$id] ?? '';
     }

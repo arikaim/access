@@ -24,7 +24,7 @@ class OauthProvider extends AuthProvider implements AuthProviderInterface
      * @param array $credentials
      * @return bool
      */
-    public function authenticate(array $credentials)
+    public function authenticate(array $credentials): bool
     {
         $this->user = $this->getProvider()->getUserByCredentials($credentials);
         
@@ -47,7 +47,7 @@ class OauthProvider extends AuthProvider implements AuthProviderInterface
      *
      * @return void
      */
-    public function logout()
+    public function logout(): void
     {
         $this->user = null;
         Session::remove('auth.id');
@@ -80,7 +80,7 @@ class OauthProvider extends AuthProvider implements AuthProviderInterface
      *
      * @return integer
      */
-    public function getLoginAttempts()
+    public function getLoginAttempts(): ?int
     {
         return (integer)Session::get('auth.login.attempts',0);  
     }

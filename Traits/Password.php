@@ -23,7 +23,7 @@ trait Password
      * @param integer $algo
      * @return string
      */
-    public function encryptPassword($password, $algo = null) 
+    public function encryptPassword(string $password, $algo = null): string 
     {
         $algo = $algo ?? $this->getEncryptPasswordAlgo();
 
@@ -37,7 +37,7 @@ trait Password
      * @param string $password
      * @return bool
      */
-    public function changePassword($id, $password)
+    public function changePassword($id, string $password): bool
     {       
         $model = $this->findById($id);
         if (\is_object($model) == false) {
@@ -45,7 +45,7 @@ trait Password
         }
         $model->{$this->getPasswordAttributeName()} = $this->encryptPassword($password);  
 
-        return $model->save();
+        return (bool)$model->save();
     }    
 
     /**
@@ -54,7 +54,7 @@ trait Password
      * @param string $password   
      * @return bool
      */
-    public function verifyPassword($password) 
+    public function verifyPassword(string $password): bool 
     {
         if (empty($password) == true) {
             return false;
@@ -70,7 +70,7 @@ trait Password
      *
      * @return string
      */
-    public function getPasswordAttributeName()
+    public function getPasswordAttributeName(): string
     {
         return $this->passwordColumn ?? 'password';
     }
@@ -90,7 +90,7 @@ trait Password
      *
      * @return string
      */
-    public function getPassword()
+    public function getPassword(): string
     {
         return $this->{$this->getPasswordAttributeName()};
     }

@@ -9,7 +9,6 @@
 */
 namespace Arikaim\Core\Access\Traits;
 
-
 /**
  *  Auth trait
  *  For change auth id name in model:  protected $authIdColumn = 'auth id name';
@@ -21,7 +20,7 @@ trait Auth
      *
      * @return string
      */
-    public function getAuthIdName()
+    public function getAuthIdName(): string
     {
         return $this->authIdColumn ?? 'id';
     }

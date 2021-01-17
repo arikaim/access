@@ -37,7 +37,7 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
      *
      * @return void
      */
-    protected function init()
+    protected function init(): void
     {
         $this->jwtKey = $this->getParam('key');
         $this->clearToken();
@@ -49,7 +49,7 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
      * @param array $credentials
      * @return bool
      */
-    public function authenticate(array $credentials)
+    public function authenticate(array $credentials): bool
     {
         $token = (isset($credentials['token']) == false) ? null : $credentials['token'];
         if (empty($token) == true) {
@@ -79,7 +79,7 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
      *
      * @return void
      */
-    public function logout()
+    public function logout(): void
     {
         $this->user = null;
         $this->clearToken();
@@ -100,7 +100,7 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
      *
      * @return void
      */
-    public function clearToken()
+    public function clearToken(): void
     {
         $this->token['decoded'] = null;
         $this->token['token'] = null;
@@ -111,7 +111,7 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
      *
      * @return boolean
      */
-    public function isValidToken()
+    public function isValidToken(): bool
     {
         return !empty($this->token['decoded']);           
     }
@@ -136,10 +136,12 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
     /**
      * Decode and save token data.
      *
-     * @param string $tokens
+     * @param string $token
+     * @param int|null $expire
+     * @param string|null $key
      * @return boolean
      */
-    public function decodeToken($token, $expire = null, $key = null)
+    public function decodeToken(string $token, $expire = null, $key = null): bool
     {       
         $key = (empty($key) == true) ? $this->jwtKey: $key;
         $jwt = new Jwt($expire,$key);
@@ -158,7 +160,7 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
      *
      * @return array
      */
-    public function getToken()
+    public function getToken(): array
     {
         return $this->token;
     }
@@ -169,7 +171,7 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
      * @param string $name
      * @return mixed|null
      */
-    public function getTokenParam($name)
+    public function getTokenParam(string $name)
     {
         if (isset($this->token['decoded'][$name]) == false) {
             return null;

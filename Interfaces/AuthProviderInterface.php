@@ -19,7 +19,7 @@ interface AuthProviderInterface
      *
      * @return void
      */
-    public function logout();
+    public function logout(): void;
 
     /**
      * Get current auth user
@@ -41,12 +41,12 @@ interface AuthProviderInterface
      * @param array $credentials
      * @return bool
      */
-    public function authenticate(array $credentials);
+    public function authenticate(array $credentials): bool;
 
     /**
      * Get login attempts
      *
      * @return integer|null
      */
-    public function getLoginAttempts();
+    public function getLoginAttempts(): ?int;
 }

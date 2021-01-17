@@ -32,7 +32,7 @@ class TokenAuthProvider extends AuthProvider implements AuthProviderInterface
      * @param array $credentials
      * @return boolean
      */
-    public function authenticate(array $credentials)
+    public function authenticate(array $credentials): bool
     {  
         $this->user = $this->getProvider()->getUserByCredentials($credentials);
     
@@ -44,7 +44,7 @@ class TokenAuthProvider extends AuthProvider implements AuthProviderInterface
      *
      * @return void
      */
-    public function logout()
+    public function logout(): void
     {   
         $this->user = null;
     }
@@ -57,7 +57,7 @@ class TokenAuthProvider extends AuthProvider implements AuthProviderInterface
      * @param integer $expireTime
      * @return array|false
      */
-    public function createToken($userId, $type = Self::PAGE_ACCESS_TOKEN, $expireTime = 1800)
+    public function createToken($userId, $type = Self::PAGE_ACCESS_TOKEN, int $expireTime = 1800)
     {
         return Model::AccessTokens()->createToken($userId,$type,$expireTime);
     }    

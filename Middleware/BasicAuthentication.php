@@ -49,7 +49,7 @@ class BasicAuthentication extends AuthMiddleware implements MiddlewareInterface
      * @param \Psr\Http\Message\ServerRequestInterface $request
      * @return array
      */
-    protected function getCredentials($request)
+    protected function getCredentials($request): array
     {
         return [
             'user_name' => $request->getHeader('PHP_AUTH_USER'),

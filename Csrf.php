@@ -22,7 +22,7 @@ class Csrf
      * @param boolean $create
      * @return string|null
      */
-    public static function getToken($create = false)
+    public static function getToken(bool $create = false)
     {
         $token = Session::get('csrf_token',null);
         return ($create == true && empty($token) == true) ? Self::createToken() : $token;        
@@ -34,7 +34,7 @@ class Csrf
      * @param string $token
      * @return bool
      */
-    public static function validateToken($token)
+    public static function validateToken(string $token): bool
     {
         return (empty($token) == true || Self::getToken() !== $token) ? false : true; 
     }
@@ -44,7 +44,7 @@ class Csrf
      *
      * @return string
      */
-    public static function createToken() 
+    public static function createToken(): string 
     {
         $token = \bin2hex(\random_bytes(16));
         Session::set('csrf_token',$token);

@@ -23,9 +23,9 @@ class BasicAuthProvider extends AuthProvider implements AuthProviderInterface
      * @param array $credentials
      * @return bool
      */
-    public function authenticate(array $credentials)
+    public function authenticate(array $credentials): bool
     {
-        $password = (isset($credentials['password']) == true) ? $credentials['password'] : null;
+        $password = $credentials['password'] ?? null;
 
         $this->user = $this->getProvider()->getUserByCredentials($credentials);
         if ($this->user === false) {
@@ -40,7 +40,7 @@ class BasicAuthProvider extends AuthProvider implements AuthProviderInterface
      *
      * @return void
      */
-    public function logout()
+    public function logout(): void
     {
         $this->user = null;
     }

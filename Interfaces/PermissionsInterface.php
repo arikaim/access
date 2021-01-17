@@ -17,12 +17,12 @@ interface PermissionsInterface
     /**
      * Get user permission
      *
-     * @param string $name
-     * @param mixed $id
+     * @param string|int $name
+     * @param mixed $userId
      * @param array $permissions
      * @return boolean
      */
-    public function hasPermissions($name, $id, $permissions);
+    public function hasPermissions($name, $userId, array $permissions): bool;
 
     /**
      * Add permission item.
@@ -33,7 +33,7 @@ interface PermissionsInterface
      * @param string|null $extension
      * @return boolean
      */
-    public function addPermission($name, $title = null, $description = null, $extension = null);
+    public function addPermission(string $name, ?string $title = null, ?string $description = null, ?string $extension = null): bool;
 
     /**
      * Get user permissions list
