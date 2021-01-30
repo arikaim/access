@@ -48,7 +48,7 @@ interface UserProviderInterface
      * Return user details by auth id
      *
      * @param string|integer $id
-     * @return array
+     * @return array|false
      */
     public function getUserById($id);
 }
