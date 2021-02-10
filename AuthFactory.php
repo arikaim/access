@@ -158,7 +158,7 @@ class AuthFactory
      */
     public static function resolveAuthType($type): ?int
     {
-        if (\is_integer($type) == true) {
+        if (\is_numeric($type) == true) {
             return (int)$type;
         }
         if (\is_string($type) == true) {           
