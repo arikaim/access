@@ -158,11 +158,14 @@ class AuthFactory
      */
     public static function resolveAuthType($type): ?int
     {
+        if (\is_integer($type) == true) {
+            return (int)$type;
+        }
         if (\is_string($type) == true) {           
             return Self::getTypeId($type);
         }
 
-        return (\is_integer($type) == true) ? $type : null;
+        return null;
     }
 
     /**
@@ -171,7 +174,7 @@ class AuthFactory
      * @param int $auth
      * @return string|null
      */
-    public static function getAuthName($auth): ?string
+    public static function getAuthName(int $auth): ?string
     {
         return Self::$authNames[$auth] ?? null;          
     }
@@ -182,7 +185,7 @@ class AuthFactory
      * @param integer $id
      * @return string
      */
-    public static function getAuthMiddlewareClass($id): string
+    public static function getAuthMiddlewareClass(int $id): string
     {     
         return Self::$middlewareClasses[$id] ?? '';
     }
@@ -193,7 +196,7 @@ class AuthFactory
      * @param integer $id
      * @return string
      */
-    public static function getAuthProviderClass($id): string
+    public static function getAuthProviderClass(int $id): string
     {
         return Self::$providerClasses[$id] ?? '';
     }
