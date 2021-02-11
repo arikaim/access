@@ -44,7 +44,7 @@ trait Password
             return false;
         }
         $model->{$this->getPasswordAttributeName()} = $this->encryptPassword($password);  
-
+        
         return (bool)$model->save();
     }    
 

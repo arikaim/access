@@ -25,14 +25,12 @@ class BasicAuthProvider extends AuthProvider implements AuthProviderInterface
      */
     public function authenticate(array $credentials): bool
     {
-        $password = $credentials['password'] ?? null;
-
         $this->user = $this->getProvider()->getUserByCredentials($credentials);
-        if ($this->user === false) {
+        if (\is_null($this->user) == true) {
             return false;
         }
       
-        return ($this->user->verifyPassword($password) == true);                
+        return true;             
     }
   
     /**

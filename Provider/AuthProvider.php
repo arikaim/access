@@ -27,7 +27,7 @@ abstract class AuthProvider implements AuthProviderInterface
     /**
      * Current auth user
      *
-     * @var UserProviderInterface|null
+     * @var array|null
     */
     protected $user;
 
@@ -86,7 +86,7 @@ abstract class AuthProvider implements AuthProviderInterface
     /**
      * Get current auth user
      *
-     * @return UserProviderInterface
+     * @return array|null
      */
     public function getUser()
     {
@@ -100,7 +100,7 @@ abstract class AuthProvider implements AuthProviderInterface
      */
     public function getId()
     {
-        return (empty($this->user) == false) ? $this->user->getAuthId() : null;
+        return $this->user['auth_id'] ?? null;
     }
 
     /**

@@ -26,25 +26,21 @@ class SessionAuthProvider extends AuthProvider implements AuthProviderInterface
      */
     public function authenticate(array $credentials): bool
     {
-        $password = (isset($credentials['password']) == true) ? $credentials['password'] : null;
-
         $this->user = $this->getProvider()->getUserByCredentials($credentials);
-        $loginAttempts = $this->getLoginAttempts() + 1;
-        Session::set('auth.login.attempts',$loginAttempts);
-
-        if ($this->user === false) {
+     
+        if (\is_null($this->user) == true) {
+            // fail to auth
+            $loginAttempts = $this->getLoginAttempts() + 1;
             Session::set('auth.login.attempts',$loginAttempts);
+            // not vlaid user
             return false;
         }
-      
-        if ($this->user->verifyPassword($password) == true) {
-            Session::set('auth.id',$this->user->getAuthId());
-            Session::set('auth.login.time',time());
-            Session::remove('auth.login.attempts');              
-            return true;
-        }
-    
-        return false;
+        // success
+        Session::set('auth.id',$this->user['auth_id'] ?? null);
+        Session::set('auth.login.time',time());
+        Session::remove('auth.login.attempts'); 
+
+        return true;
     }
      
     /**
@@ -61,23 +57,25 @@ class SessionAuthProvider extends AuthProvider implements AuthProviderInterface
     }
 
     /**
+     * Get current auth user
+     *
+     * @return array|null
+    */
+    public function getUser()
+    {
+        $authId = $this->getId();
+        
+        return (empty($authId) == true) ? null : $this->getProvider()->getUserById($authId);
+    }
+
+    /**
      * Gte auth id
      *
      * @return null|integer
      */
     public function getId()
     {
-        return Session::get('auth.id',null);     
-    }
-
-    /**
-     * Get current auth user
-     *
-     * @return UserProviderInterface
-     */
-    public function getUser()
-    {
-        return (empty($this->getId()) == true) ? null : $this->userProvider->getUserById($this->getId());
+        return (int)Session::get('auth.id',null);     
     }
 
     /**
@@ -87,6 +85,6 @@ class SessionAuthProvider extends AuthProvider implements AuthProviderInterface
      */
     public function getLoginAttempts(): ?int
     {
-        return (integer)Session::get('auth.login.attempts',0);  
+        return (int)Session::get('auth.login.attempts',0);  
     }
 }

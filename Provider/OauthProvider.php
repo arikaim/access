@@ -28,14 +28,14 @@ class OauthProvider extends AuthProvider implements AuthProviderInterface
     {
         $this->user = $this->getProvider()->getUserByCredentials($credentials);
         
-        if ($this->user === false) {
+        if (\is_null($this->user) == true) {
             $loginAttempts = $this->getLoginAttempts() + 1;       
             Session::set('auth.login.attempts',$loginAttempts);
             
             return false;
         }
       
-        Session::set('auth.id',$this->user->getAuthId());
+        Session::set('auth.id',$this->user['auth_id'] ?? null);
         Session::set('auth.login.time',time());
         Session::remove('auth.login.attempts');              
         
@@ -62,17 +62,7 @@ class OauthProvider extends AuthProvider implements AuthProviderInterface
      */
     public function getId()
     {
-        return Session::get('auth.id',null);     
-    }
-
-    /**
-     * Get current auth user
-     *
-     * @return UserProviderInterface
-     */
-    public function getUser()
-    {
-        return (empty($this->getId()) == true) ? null : $this->userProvider->getUserById($this->getId());
+        return (int)Session::get('auth.id',null);     
     }
 
     /**
@@ -82,6 +72,6 @@ class OauthProvider extends AuthProvider implements AuthProviderInterface
      */
     public function getLoginAttempts(): ?int
     {
-        return (integer)Session::get('auth.login.attempts',0);  
+        return (int)Session::get('auth.login.attempts',0);  
     }
 }

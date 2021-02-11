@@ -14,6 +14,7 @@ use Slim\Exception\HttpNotFoundException;
 
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
 use Arikaim\Core\Http\Response;
+use Arikaim\Core\Arikaim;
 
 /**
  *  Middleware base class
@@ -52,9 +53,14 @@ class AuthMiddleware
      * @param array $credentials
      * @return boolean
      */
-    protected function authenticate(array $credentials)
+    protected function authenticate(array $credentials): bool
     {
-        return ($this->getAuthProvider()->authenticate($credentials) == true);                   
+        $result = ($this->getAuthProvider()->authenticate($credentials) == true); 
+        if ($result == true) {
+            Arikaim::get('access')->setProvider($this->getAuthProvider());
+        }
+
+        return $result;
     }
 
     /**

@@ -24,7 +24,7 @@ interface AuthProviderInterface
     /**
      * Get current auth user
      *
-     * @return UserProviderInterface
+     * @return array|null
      */
     public function getUser();
     

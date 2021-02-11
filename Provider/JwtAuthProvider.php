@@ -51,7 +51,7 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
      */
     public function authenticate(array $credentials): bool
     {
-        $token = (isset($credentials['token']) == false) ? null : $credentials['token'];
+        $token = $credentials['token'] ?? null;
         if (empty($token) == true) {
             return false;
         }
@@ -65,8 +65,8 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
             return false;
         }
 
-        $this->user = $this->getProvider()->getUserByCredentials(['id' => $id]);
-        if ($this->user === false) {
+        $this->user = $this->getProvider()->getUserById($id);
+        if (\is_null($this->user) == true) {
             $this->clearToken();
             return false;
         }

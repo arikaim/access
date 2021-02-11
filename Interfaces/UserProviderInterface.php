@@ -32,9 +32,9 @@ interface UserProviderInterface
      * Get user credentials
      *
      * @param array $credential
-     * @return mixed|false
+     * @return array|null
      */
-    public function getUserByCredentials(array $credentials);
+    public function getUserByCredentials(array $credentials): ?array;
 
     /**
      * Return true if password is correct.
@@ -48,7 +48,7 @@ interface UserProviderInterface
      * Return user details by auth id
      *
      * @param string|integer $id
-     * @return array|false
+     * @return array|null
      */
-    public function getUserById($id);
+    public function getUserById($id): ?array;
 }

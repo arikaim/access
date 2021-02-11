@@ -209,7 +209,7 @@ class Access implements AccessInterface
     {       
         $authId = $authId ?? $this->getId();
 
-        list($name, $permissionType) = $this->resolvePermissionName($name);
+        list($name,$permissionType) = $this->resolvePermissionName($name);
        
         if (\is_array($permissionType) == false) {           
             $permissionType = $this->resolvePermissionType($type);
@@ -287,9 +287,6 @@ class Access implements AccessInterface
         return null;
     }
 
-    
-    
-    
     /**
      * Logout
      *
@@ -303,7 +300,7 @@ class Access implements AccessInterface
     /**
      * Get logged user
      *
-     * @return mixed|null
+     * @return array|null
      */
     public function getUser()
     {
