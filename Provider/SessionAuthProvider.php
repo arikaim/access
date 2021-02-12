@@ -9,6 +9,8 @@
  */
 namespace Arikaim\Core\Access\Provider;
 
+use Psr\Http\Message\ServerRequestInterface;
+
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
 use Arikaim\Core\Http\Session;
 use Arikaim\Core\Access\Provider\AuthProvider;
@@ -22,27 +24,48 @@ class SessionAuthProvider extends AuthProvider implements AuthProviderInterface
      * Auth user
      *
      * @param array $credentials
+     * @param ServerRequestInterface|null $request
      * @return bool
      */
-    public function authenticate(array $credentials): bool
+    public function authenticate(array $credentials, ?ServerRequestInterface $request = null): bool
     {
-        $this->user = $this->getProvider()->getUserByCredentials($credentials);
-     
-        if (\is_null($this->user) == true) {
-            // fail to auth
-            $loginAttempts = $this->getLoginAttempts() + 1;
-            Session::set('auth.login.attempts',$loginAttempts);
-            // not vlaid user
+        $user = $this->getProvider()->getUserByCredentials($credentials);
+      
+        if (\is_null($user) == true) {
+            $this->fail();
             return false;
         }
         // success
-        Session::set('auth.id',$this->user['auth_id'] ?? null);
-        Session::set('auth.login.time',time());
-        Session::remove('auth.login.attempts'); 
+        $this->user = $user;
+        $this->success();
 
         return true;
     }
-     
+    
+    /**
+     * Fail auth
+     *
+     * @return void
+     */
+    protected function fail(): void
+    {
+        // fail to auth
+        $loginAttempts = $this->getLoginAttempts() + 1;
+        Session::set('auth.login.attempts',$loginAttempts);
+    } 
+
+    /**
+     * Scucess auth
+     *
+     * @return void
+     */
+    protected function success(): void
+    {
+        Session::set('auth.id',$this->user['auth_id'] ?? null);
+        Session::set('auth.login.time',time());
+        Session::remove('auth.login.attempts'); 
+    }
+
     /**
      * Logout
      *
@@ -61,7 +84,7 @@ class SessionAuthProvider extends AuthProvider implements AuthProviderInterface
      *
      * @return array|null
     */
-    public function getUser()
+    public function getUser(): ?array
     {
         $authId = $this->getId();
         

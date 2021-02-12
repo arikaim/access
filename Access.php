@@ -13,8 +13,6 @@ use Arikaim\Core\Interfaces\Access\AccessInterface;
 use Arikaim\Core\Access\Interfaces\PermissionsInterface;
 use Arikaim\Core\Access\Interfaces\UserProviderInterface;
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
-
-use Arikaim\Core\Access\Provider\SessionAuthProvider;
 use Arikaim\Core\Collection\Arrays;
 use Arikaim\Core\Access\AuthFactory;
 
@@ -23,6 +21,8 @@ use Arikaim\Core\Access\AuthFactory;
  */
 class Access implements AccessInterface
 { 
+    const DEFAULT_AUTH_PROVIDER = 'session';
+
     /**
      * Permissions adapter
      *
@@ -42,7 +42,14 @@ class Access implements AccessInterface
      *
      * @var AuthProviderInterface|null
      */
-    private $provider;
+    private $provider = null;
+
+    /**
+     * Auth provider options
+     *
+     * @var array
+     */
+    private $providerOptions = [];
 
     /**
      * Constructor
@@ -52,12 +59,14 @@ class Access implements AccessInterface
     public function __construct(
         PermissionsInterface $adapter, 
         UserProviderInterface $user, 
-        ?AuthProviderInterface $provider = null
+        ?AuthProviderInterface $provider = null,
+        array $providerOptions = [] 
     ) 
     {
         $this->adapter = $adapter;  
         $this->user = $user;
-        $this->provider = ($provider == null) ? new SessionAuthProvider($user) : $provider;   
+        $this->provider = $provider; 
+        $this->providerOptions = $providerOptions;
     }
 
     /**
@@ -68,7 +77,7 @@ class Access implements AccessInterface
      */
     public function authenticate(array $credentials): bool
     {
-        return $this->provider->authenticate($credentials);
+        return (\is_null($this->provider) == true) ? false : $this->provider->authenticate($credentials);
     }
 
     /**
@@ -79,11 +88,28 @@ class Access implements AccessInterface
      * @param UserProviderInterface|null $user
      * @return object|null
      */
-    public function middleware($authName, array $options = [], ?UserProviderInterface $user = null)
+    public function middleware(string $authName, array $options = [], ?UserProviderInterface $user = null)
     {       
         $user = $user ?? $this->user;
 
         return AuthFactory::createMiddleware($authName,$user,$options);       
+    }
+
+    /**
+     * Set provider if is null
+     *
+     * @param AuthProviderInterface|string $provider
+     * @param UserProviderInterface|null $user
+     * @param array $params
+     * @return AuthProviderInterface
+    */
+    public function requireProvider($provider, $user = null, array $params = [])
+    {
+        if (\is_null($this->provider) == true) {
+            $this->withProvider($provider,$user,$params);
+        }
+
+        return $this->provider;
     }
 
     /**
@@ -109,13 +135,14 @@ class Access implements AccessInterface
      *
      * @param string $name
      * @param UserProviderInterface|null $user
-     * @param array $params
+     * @param array|null $params
      * @return object|null
      */
-    protected function createProvider(string $name, ?UserProviderInterface $user = null, array $params = [])
+    public function createProvider(string $name, ?UserProviderInterface $user = null, ?array $params = null)
     {
-        $user = $user ?? $this->user;
-
+        $user = $user ?? $this->user;   
+        $params = $params ?? $this->providerOptions;
+        
         return AuthFactory::createProvider($name,$user,$params);       
     }
 
@@ -133,7 +160,7 @@ class Access implements AccessInterface
     /**
      * Return auth provider
      *
-     * @return AuthProviderInterface
+     * @return AuthProviderInterface|null
      */
     public function getProvider()
     {
@@ -294,7 +321,9 @@ class Access implements AccessInterface
      */
     public function logout(): void
     {
-        $this->provider->logout();
+        if (\is_null($this->provider) == false) {
+            $this->provider->logout();
+        }
     }
 
     /**
@@ -302,9 +331,9 @@ class Access implements AccessInterface
      *
      * @return array|null
      */
-    public function getUser()
+    public function getUser(): ?array
     {
-        return $this->provider->getUser();
+        return (\is_null($this->provider) == true) ? null : $this->provider->getUser();
     }
 
     /**
@@ -314,16 +343,20 @@ class Access implements AccessInterface
      */
     public function getLoginAttempts(): ?int
     {
-        return $this->provider->getLoginAttempts();
+        return (\is_null($this->provider) == true) ? null : $this->provider->getLoginAttempts();
     }
 
     /**
      * Get auth id
      *
-     * @return null|integer
+     * @return null|integer|string
      */
     public function getId()
     {
+        if (\is_null($this->provider) == true) {
+            $this->withProvider(Self::DEFAULT_AUTH_PROVIDER);
+        }
+        
         return $this->provider->getId();
     }
 

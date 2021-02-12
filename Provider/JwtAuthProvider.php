@@ -9,6 +9,8 @@
  */
 namespace Arikaim\Core\Access\Provider;
 
+use Psr\Http\Message\ServerRequestInterface;
+
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
 use Arikaim\Core\Access\Provider\AuthProvider;
 use Arikaim\Core\Access\Jwt;
@@ -44,15 +46,36 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
     }
 
     /**
+     * Get token from request header
+     *
+     * @param \Psr\Http\Message\RequestInterface $request
+     * @return string|false Base64 encoded JSON Web Token, Session ID or false if not found.
+     */
+    protected function readToken(ServerRequestInterface $request)
+    {   
+        $headers = $request->getHeader('Authorization');
+        $header = $headers[0] ?? '';
+    
+        if (empty($header) && \function_exists('apache_request_headers')) {
+            $headers = \apache_request_headers();
+            $header = $headers['Authorization'] ?? '';
+        }
+
+        return (\preg_match('/Bearer\s+(.*)$/i', $header, $matches) == true) ? $matches[1] : false;
+    }
+
+    /**
      * Auth user
      *
      * @param array $credentials
+     * @param ServerRequestInterface|null $request
      * @return bool
      */
-    public function authenticate(array $credentials): bool
+    public function authenticate(array $credentials, ?ServerRequestInterface $request = null): bool
     {
         $token = $credentials['token'] ?? null;
-        if (empty($token) == true) {
+        $token = (empty($token) == true) ? $this->readToken($request) : $token;
+        if (empty($token) == true) {         
             return false;
         }
 
@@ -66,6 +89,7 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
         }
 
         $this->user = $this->getProvider()->getUserById($id);
+        
         if (\is_null($this->user) == true) {
             $this->clearToken();
             return false;
@@ -124,7 +148,7 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
      * @param string|null $key
      * @return object
      */
-    public function createToken($id, $expire = null, $key = null) 
+    public function createToken($id, ?int $expire = null, ?string $key = null) 
     {
         $key = (empty($key) == true) ? $this->jwtKey: $key;
         $jwt = new Jwt($expire,$key);

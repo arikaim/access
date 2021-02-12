@@ -9,69 +9,36 @@
  */
 namespace Arikaim\Core\Access\Provider;
 
+use Psr\Http\Message\ServerRequestInterface;
+
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
-use Arikaim\Core\Http\Session;
-use Arikaim\Core\Access\Provider\AuthProvider;
+use Arikaim\Core\Access\Provider\SessionAuthProvider;
 
 /**
  * OAuth provider.
  */
-class OauthProvider extends AuthProvider implements AuthProviderInterface
+class OauthProvider extends SessionAuthProvider implements AuthProviderInterface
 {
     /**
      * Auth user
      *
      * @param array $credentials
+     * @param ServerRequestInterface|null $request
      * @return bool
      */
-    public function authenticate(array $credentials): bool
+    public function authenticate(array $credentials, ?ServerRequestInterface $request = null): bool
     {
-        $this->user = $this->getProvider()->getUserByCredentials($credentials);
-        
-        if (\is_null($this->user) == true) {
-            $loginAttempts = $this->getLoginAttempts() + 1;       
-            Session::set('auth.login.attempts',$loginAttempts);
-            
+        $user = $this->getProvider()->getUserByCredentials($credentials);
+
+        if (\is_null($user) == true) {
+            $this->fail();
+
             return false;
         }
-      
-        Session::set('auth.id',$this->user['auth_id'] ?? null);
-        Session::set('auth.login.time',time());
-        Session::remove('auth.login.attempts');              
         
+        $this->user = $user;
+        $this->success();
+               
         return true;
-    }
-     
-    /**
-     * Logout
-     *
-     * @return void
-     */
-    public function logout(): void
-    {
-        $this->user = null;
-        Session::remove('auth.id');
-        Session::remove('auth.login.time');
-        Session::remove('auth.login.attempts');  
-    }
-
-    /**
-     * Gte auth id
-     *
-     * @return null|integer
-     */
-    public function getId()
-    {
-        return (int)Session::get('auth.id',null);     
-    }
-
-    /**
-     * Get login attempts 
-     *
-     * @return integer
-     */
-    public function getLoginAttempts(): ?int
-    {
-        return (int)Session::get('auth.login.attempts',0);  
     }
 }

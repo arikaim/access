@@ -10,14 +10,13 @@
 namespace Arikaim\Core\Access;
 
 use Arikaim\Core\Access\Interfaces\UserProviderInterface;
+use Arikaim\Core\Access\Middleware\AuthMiddleware;
 
 /**
  * Auth factory class.
  */
 class AuthFactory
 {
-    const ACCESS_NAMESPACE = 'Arikaim\\Core\\Access\\';
-   
     // auth type id
     const AUTH_BASIC        = 1;
     const AUTH_SESSION      = 2;
@@ -32,13 +31,6 @@ class AuthFactory
      * @var array
      */
     private static $providers;
-
-    /**
-     * Middleware object pool
-     *
-     * @var array
-     */
-    private static $middleware;
 
     /**
      * Auth name
@@ -71,20 +63,6 @@ class AuthFactory
     ];
 
     /**
-     * Auth Middleware classes
-     *
-     * @var array
-     */
-    private static $middlewareClasses = [
-        null,
-        'BasicAuthentication',
-        'SessionAuthentication',
-        'JwtAuthentication',
-        'TokenAuthentication',
-        'CsrfToken'
-    ];
-
-    /**
      * Create auth provider
      *
      * @param string|integer $name
@@ -98,7 +76,7 @@ class AuthFactory
             return Self::$providers[$name];
         }
         $className = (\class_exists($name) == true) ? $name : Self::getAuthProviderClass(Self::resolveAuthType($name));
-        $fullClassName = Self::ACCESS_NAMESPACE . 'Provider\\' . $className;
+        $fullClassName = 'Arikaim\\Core\\Access\\Provider\\' . $className;
     
         Self::$providers[$name] = (\class_exists($fullClassName) == true) ? new $fullClassName($user,$params) : null;
         
@@ -108,24 +86,27 @@ class AuthFactory
     /**
      * Create auth middleware
      *
-     * @param string|integer $authName   
+     * @param string $authName   
      * @param UserProviderInterface $user
      * @param array $options
      * @return object|null
      */
-    public static function createMiddleware($authName, UserProviderInterface $user, array $options = [])
+    public static function createMiddleware(string $authName, UserProviderInterface $user, array $options = [])
     {       
-        if (isset(Self::$middleware[$authName]) == true) {
-            return Self::$middleware[$authName];
+        $tokens = \explode(',',$authName);
+        $providers = [];
+        foreach ($tokens as $item) {
+            $name = (\is_numeric($authName) == true) ? Self::getAuthName($authName) : $authName; 
+            $providers[$name] = Self::createProvider($item,$user);
         }
+    
+        if (\count($providers) == 0) {
+            // no auth providers created
+            return null;
+        }
+        $middleware = new AuthMiddleware($providers,$options);
 
-        $className = (\class_exists($authName) == true) ? $authName : Self::getAuthMiddlewareClass(Self::resolveAuthType($authName));
-        $fullClassName = Self::ACCESS_NAMESPACE . 'Middleware\\' . $className;
-      
-        $provider = Self::createProvider($authName,$user);
-        Self::$middleware[$authName] = (\class_exists($fullClassName) == true) ? new $fullClassName($provider,$options) : null;
-
-        return Self::$middleware[$authName];
+        return $middleware;
     }
 
     /**
@@ -177,17 +158,6 @@ class AuthFactory
     public static function getAuthName(int $auth): ?string
     {
         return Self::$authNames[$auth] ?? null;          
-    }
-
-    /**
-     * Get middleware class name
-     *
-     * @param integer $id
-     * @return string
-     */
-    public static function getAuthMiddlewareClass(int $id): string
-    {     
-        return Self::$middlewareClasses[$id] ?? '';
     }
 
     /**

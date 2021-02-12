@@ -9,6 +9,8 @@
 */
 namespace Arikaim\Core\Access\Interfaces;
 
+use Psr\Http\Message\ServerRequestInterface;
+
 /**
  * Auth provider interface
  */
@@ -26,7 +28,7 @@ interface AuthProviderInterface
      *
      * @return array|null
      */
-    public function getUser();
+    public function getUser(): ?array;
     
     /**
      * Get current auth id
@@ -39,9 +41,10 @@ interface AuthProviderInterface
      * Authenticate user 
      *
      * @param array $credentials
+     * @param ServerRequestInterface|null $request
      * @return bool
      */
-    public function authenticate(array $credentials): bool;
+    public function authenticate(array $credentials, ?ServerRequestInterface $request = null): bool;
 
     /**
      * Get login attempts
@@ -49,4 +52,11 @@ interface AuthProviderInterface
      * @return integer|null
      */
     public function getLoginAttempts(): ?int;
+
+    /**
+     * Check if user is logged
+     *
+     * @return boolean
+     */
+    public function isLogged(): bool;
 }

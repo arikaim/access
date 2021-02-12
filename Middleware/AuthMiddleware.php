@@ -10,23 +10,25 @@
 namespace Arikaim\Core\Access\Middleware;
 
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Server\MiddlewareInterface;
 use Slim\Exception\HttpNotFoundException;
 
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
 use Arikaim\Core\Http\Response;
-use Arikaim\Core\Arikaim;
 
 /**
  *  Middleware base class
  */
-class AuthMiddleware
+class AuthMiddleware implements MiddlewareInterface
 {
     /**
      * Auth provider
      *
-     * @var AuthProviderInterface
+     * @var array
      */
-    protected $auth;
+    protected $authProviders;
 
     /**
      * Options
@@ -41,36 +43,46 @@ class AuthMiddleware
      * @param AuthProviderInterface $auth
      * @param array $options
      */
-    public function __construct(AuthProviderInterface $auth, array $options = [])
+    public function __construct(array $authProviders, array $options = [])
     {
-        $this->auth = $auth;     
+        $this->authProviders = $authProviders;     
         $this->options = $options;
     }
     
     /**
-     * Authenticate
-     *
-     * @param array $credentials
-     * @return boolean
-     */
-    protected function authenticate(array $credentials): bool
-    {
-        $result = ($this->getAuthProvider()->authenticate($credentials) == true); 
-        if ($result == true) {
-            Arikaim::get('access')->setProvider($this->getAuthProvider());
+     * Process middleware
+     * 
+     * @param ServerRequestInterface  $request
+     * @param RequestHandlerInterface $handler
+     * @return ResponseInterface
+    */
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    {      
+        foreach ($this->authProviders as $name => $provider) {
+            if ($provider->isLogged() == true) {
+                $request = $request->withAttribute('auth_provider',$provider);
+                return $handler->handle($request);  
+            }
+            
+            if ($provider->authenticate([],$request) == true) {
+                // success
+                $request = $request->withAttribute('auth_provider',$provider);
+                return $handler->handle($request);  
+            } 
         }
-
-        return $result;
+        
+        // error
+        return $this->handleError($request,$handler);
     }
 
     /**
      * Get auth provider
      *
-     * @return AuthProviderInterface
+     * @return AuthProviderInterface|null
      */
-    public function getAuthProvider()
+    public function getAuthProvider($name)
     {
-        return $this->auth;
+        return $this->authProviders[$name] ?? null;
     }
 
     /**

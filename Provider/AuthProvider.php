@@ -9,6 +9,8 @@
  */
 namespace Arikaim\Core\Access\Provider;
 
+use Psr\Http\Message\ServerRequestInterface;
+
 use Arikaim\Core\Access\Interfaces\UserProviderInterface;
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
 
@@ -53,6 +55,16 @@ abstract class AuthProvider implements AuthProviderInterface
     }
 
     /**
+     * Check if user is logged
+     *
+     * @return boolean
+     */
+    public function isLogged(): bool
+    {
+        return (empty($this->getId()) == false);
+    }
+
+    /**
      * Init provider
      *
      * @return void
@@ -70,7 +82,7 @@ abstract class AuthProvider implements AuthProviderInterface
      */
     public function getParam(string $name, $default = null)
     {
-        return $this->parms[$name] ?? $default;
+        return $this->params[$name] ?? $default;
     }
 
     /**
@@ -88,7 +100,7 @@ abstract class AuthProvider implements AuthProviderInterface
      *
      * @return array|null
      */
-    public function getUser()
+    public function getUser(): ?array
     {
         return $this->user;
     }
@@ -127,9 +139,10 @@ abstract class AuthProvider implements AuthProviderInterface
      * Authenticate user 
      *
      * @param array $credentials
+     * @param ServerRequestInterface|null $request
      * @return bool
      */
-    abstract public function authenticate(array $credentials): bool;
+    abstract public function authenticate(array $credentials, ?ServerRequestInterface $request = null): bool;
     
     /**
      * Logout
