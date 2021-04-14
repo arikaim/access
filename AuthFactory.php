@@ -134,16 +134,25 @@ class AuthFactory
     /**
      * Resolve auth type
      *
-     * @param string|integer $type
-     * @return null|integer
+     * @param string|integer|array $type
+     * @return null|integer|string
      */
-    public static function resolveAuthType($type): ?int
+    public static function resolveAuthType($type)
     {
         if (\is_numeric($type) == true) {
             return (int)$type;
         }
         if (\is_string($type) == true) {           
             return Self::getTypeId($type);
+        }
+        if (\is_array($type) == true) {
+            $result = '';
+            foreach($type as $item) {
+                $id = Self::getTypeId($item);
+                $result .= (empty($result) == false) ? ',' . $id : $id;
+            }
+
+            return $result;
         }
 
         return null;
@@ -163,10 +172,10 @@ class AuthFactory
     /**
      * Get auth provider class
      *
-     * @param integer $id
+     * @param integer|string $id
      * @return string
      */
-    public static function getAuthProviderClass(int $id): string
+    public static function getAuthProviderClass($id): string
     {
         return Self::$providerClasses[$id] ?? '';
     }
