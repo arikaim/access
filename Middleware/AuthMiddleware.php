@@ -17,6 +17,7 @@ use Slim\Exception\HttpNotFoundException;
 
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
 use Arikaim\Core\Http\Response;
+use Arikaim\Core\Arikaim;
 
 /**
  *  Middleware base class
@@ -60,13 +61,15 @@ class AuthMiddleware implements MiddlewareInterface
     {      
         foreach ($this->authProviders as $name => $provider) {
             if ($provider->isLogged() == true) {
-                $request = $request->withAttribute('auth_provider',$provider);
+                Arikaim::get('access')->withProvider($provider);     
+
                 return $handler->handle($request);  
             }
             
             if ($provider->authenticate([],$request) == true) {
                 // success
-                $request = $request->withAttribute('auth_provider',$provider);
+                Arikaim::get('access')->withProvider($provider);     
+
                 return $handler->handle($request);  
             } 
         }
