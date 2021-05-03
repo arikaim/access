@@ -60,6 +60,7 @@ class AuthMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {      
         foreach ($this->authProviders as $name => $provider) {
+
             if ($provider->isLogged() == true) {
                 Arikaim::get('access')->withProvider($provider);     
 

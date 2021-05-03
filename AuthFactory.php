@@ -96,7 +96,7 @@ class AuthFactory
         $tokens = \explode(',',$authName);
         $providers = [];
         foreach ($tokens as $item) {
-            $name = (\is_numeric($authName) == true) ? Self::getAuthName($authName) : $authName; 
+            $name = (\is_numeric($item) == true) ? Self::getAuthName($item) : $item; 
             $providers[$name] = Self::createProvider($item,$user);
         }
     
