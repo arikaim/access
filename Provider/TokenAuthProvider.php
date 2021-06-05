@@ -13,7 +13,6 @@ use Psr\Http\Message\ServerRequestInterface;
 
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
 use Arikaim\Core\Access\Provider\AuthProvider;
-use Arikaim\Core\Db\Model;
 use Arikaim\Core\Http\Cookie;
 
 /**
@@ -21,14 +20,6 @@ use Arikaim\Core\Http\Cookie;
  */
 class TokenAuthProvider extends AuthProvider implements AuthProviderInterface
 {
-    /**
-     * Token access type
-     */
-    const PAGE_ACCESS_TOKEN  = 0;
-    const LOGIN_ACCESS_TOKEN = 1;
-    const API_ACCESS_TOKEN   = 2;
-    const OAUTH_ACCESS_TOKEN = 3;
-
     /**
      * Authenticate
      *
@@ -42,7 +33,7 @@ class TokenAuthProvider extends AuthProvider implements AuthProviderInterface
         if (empty($token) == true) {
             $credentials['token'] = $this->readToken($request);
         }       
-       
+        
         $this->user = $this->getProvider()->getUserByCredentials($credentials);
     
         return (\is_null($this->user) == true) ? false : true;             
@@ -59,19 +50,6 @@ class TokenAuthProvider extends AuthProvider implements AuthProviderInterface
     }
 
     /**
-     * Create access token
-     *
-     * @param integer $userId
-     * @param integer $type
-     * @param integer $expireTime
-     * @return array|false
-     */
-    public function createToken($userId, int $type = Self::PAGE_ACCESS_TOKEN, int $expireTime = 1800)
-    {
-        return Model::AccessTokens()->createToken($userId,$type,$expireTime);
-    }   
-    
-    /**
      * Get token from request header or cookies
      *
      * @param ServerRequestInterface $request
@@ -79,15 +57,24 @@ class TokenAuthProvider extends AuthProvider implements AuthProviderInterface
     */
     protected function readToken(ServerRequestInterface $request): ?string
     {   
+        // from request header
+        $token = AuthProvider::readAuthHeader($request,false);
+        if (empty($token) == false) {
+            return $token;
+        }
+
+        // from route
         $route = $request->getAttribute('route');
         $token = $route->getArgument('token'); 
       
+        // from request body
         if (empty($token) == true) {
             // try from requets body 
             $vars = $request->getParsedBody();
             $token = $vars['token'] ?? null;             
         }     
 
+        // from cookie
         if (empty($token) == true) {      
             $token = Cookie::get('token',$request);
         }

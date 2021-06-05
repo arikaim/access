@@ -46,25 +46,6 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
     }
 
     /**
-     * Get token from request header
-     *
-     * @param \Psr\Http\Message\RequestInterface $request
-     * @return string|false Base64 encoded JSON Web Token, Session ID or false if not found.
-     */
-    protected function readToken(ServerRequestInterface $request)
-    {   
-        $headers = $request->getHeader('Authorization');
-        $header = $headers[0] ?? '';
-    
-        if (empty($header) && \function_exists('apache_request_headers')) {
-            $headers = \apache_request_headers();
-            $header = $headers['Authorization'] ?? '';
-        }
-
-        return (\preg_match('/Bearer\s+(.*)$/i', $header, $matches) == true) ? $matches[1] : false;
-    }
-
-    /**
      * Auth user
      *
      * @param array $credentials
@@ -74,7 +55,7 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
     public function authenticate(array $credentials, ?ServerRequestInterface $request = null): bool
     {
         $token = $credentials['token'] ?? null;
-        $token = (empty($token) == true) ? $this->readToken($request) : $token;
+        $token = (empty($token) == true) ? AuthProvider::readAuthHeader($request,true) : $token;
         if (empty($token) == true) {         
             return false;
         }
@@ -167,7 +148,7 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
      */
     public function decodeToken(string $token, $expire = null, $key = null): bool
     {       
-        $key = (empty($key) == true) ? $this->jwtKey: $key;
+        $key = (empty($key) == true) ? $this->jwtKey : $key;
         $jwt = new Jwt($expire,$key);
 
         $decoded = $jwt->decodeToken($token);

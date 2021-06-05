@@ -55,6 +55,29 @@ abstract class AuthProvider implements AuthProviderInterface
     }
 
     /**
+     * Get token from request header
+     *
+     * @param \Psr\Http\Message\RequestInterface $request
+     * @param bool $bearer
+     * @return string|null Api token
+     */
+    public static function readAuthHeader(ServerRequestInterface $request, bool $bearer = true): ?string
+    {   
+        $headers = $request->getHeader('Authorization');
+        $header = $headers[0] ?? null;
+    
+        if (empty($header) && \function_exists('apache_request_headers')) {
+            $headers = \apache_request_headers();
+            $header = $headers['Authorization'] ?? null;
+        }
+        if ($bearer == true) {
+            return (\preg_match('/Bearer\s+(.*)$/i',$header,$matches) == true) ? $matches[1] : null;
+        }
+        
+        return $header;
+    }
+
+    /**
      * Check if user is logged
      *
      * @return boolean

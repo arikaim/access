@@ -18,6 +18,7 @@ use Slim\Exception\HttpNotFoundException;
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
 use Arikaim\Core\Http\Response;
 use Arikaim\Core\Arikaim;
+use Arikaim\Core\Access\AccessDeniedException;
 
 /**
  *  Middleware base class
@@ -51,6 +52,17 @@ class AuthMiddleware implements MiddlewareInterface
     }
     
     /**
+     * Set Auth providers
+     *
+     * @param array $authProviders
+     * @return void
+     */
+    public function setAuthProviders(array $authProviders): void
+    {
+        $this->authProviders = $authProviders; 
+    }
+
+    /**
      * Process middleware
      * 
      * @param ServerRequestInterface  $request
@@ -59,7 +71,7 @@ class AuthMiddleware implements MiddlewareInterface
     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {      
-        foreach ($this->authProviders as $name => $provider) {
+        foreach ($this->authProviders as $provider) {
 
             if ($provider->isLogged() == true) {
                 Arikaim::get('access')->withProvider($provider);     
@@ -113,7 +125,7 @@ class AuthMiddleware implements MiddlewareInterface
                 ->withStatus(307);                 
         }
 
-        throw new HttpNotFoundException($request);
+        throw new AccessDeniedException($request,'Access Denied');
         
         return $response->withStatus(401); 
     }
