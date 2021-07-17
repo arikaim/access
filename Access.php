@@ -229,7 +229,7 @@ class Access implements AccessInterface
      *
      * @param string|int $name Permission name
      * @param string|array|null $type PermissionType (read,write,execute,delete)   
-     * @param string|integer $authId 
+     * @param string|integer|null $authId 
      * @return boolean
      */
     public function hasAccess($name, $type = null, $authId = null): bool
@@ -391,7 +391,7 @@ class Access implements AccessInterface
     {
         $tokens = explode(',',$auth);
         $result = [];
-        foreach($tokens as $item) {
+        foreach ($tokens as $item) {
             $result[] = AuthFactory::getAuthName($item);
         }
 
