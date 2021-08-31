@@ -250,6 +250,19 @@ class Access implements AccessInterface
     }
 
     /**
+     * Check for deny permission 
+     *
+     * @param string|int $name Permission name
+     * @param string|array|null $type PermissionType (read,write,execute,delete)   
+     * @param string|integer|null $authId 
+     * @return boolean
+     */
+    public function hasDeny($name, $type = null, $authId = null): bool
+    {
+        return $this->hasAccess($name,$type,$authId);
+    }
+
+    /**
      * Get user permissions
      *
      * @param integer|null $authId
@@ -269,11 +282,18 @@ class Access implements AccessInterface
      * @param string|null $title
      * @param string|null $description
      * @param string|null $extension
+     * @param bool|null $deny
      * @return boolean
      */
-    public function addPermission(string $name, ?string $title = null, ?string $description = null, ?string $extension = null): bool
+    public function addPermission(
+        string $name, 
+        ?string $title = null, 
+        ?string $description = null, 
+        ?string $extension = null,
+        ?bool $deny = false
+    ): bool
     {
-        return $this->adapter->addPermission($name,$title,$description,$extension);
+        return $this->adapter->addPermission($name,$title,$description,$extension,$deny);
     }
 
     /**

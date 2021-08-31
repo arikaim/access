@@ -31,9 +31,16 @@ interface PermissionsInterface
      * @param string|null $title
      * @param string|null $description
      * @param string|null $extension
+     * @param bool|null $deny
      * @return boolean
      */
-    public function addPermission(string $name, ?string $title = null, ?string $description = null, ?string $extension = null): bool;
+    public function addPermission(
+        string $name, 
+        ?string $title = null, 
+        ?string $description = null, 
+        ?string $extension = null,
+        ?bool $deny = false
+    ): bool;
 
     /**
      * Get user permissions list
