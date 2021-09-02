@@ -20,9 +20,10 @@ interface PermissionsInterface
      * @param string|int $name
      * @param mixed $userId
      * @param array $permissions
+     * @param bool $deny
      * @return boolean
      */
-    public function hasPermissions($name, $userId, array $permissions): bool;
+    public function hasPermissions($name, $userId, array $permissions, bool $deny = false): bool;
 
     /**
      * Add permission item.

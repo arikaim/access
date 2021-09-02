@@ -235,17 +235,12 @@ class Access implements AccessInterface
     public function hasAccess($name, $type = null, $authId = null): bool
     {       
         $authId = $authId ?? $this->getId();
-
         list($name,$permissionType) = $this->resolvePermissionName($name);
        
         if (\is_array($permissionType) == false) {           
             $permissionType = $this->resolvePermissionType($type);
         }
         
-        if (\is_array($permissionType) == false) {
-            return false;
-        }
-
         return $this->adapter->hasPermissions($name,$authId,$permissionType);            
     }
 
@@ -259,7 +254,14 @@ class Access implements AccessInterface
      */
     public function hasDeny($name, $type = null, $authId = null): bool
     {
-        return $this->hasAccess($name,$type,$authId);
+        $authId = $authId ?? $this->getId();
+        list($name,$permissionType) = $this->resolvePermissionName($name);
+       
+        if (\is_array($permissionType) == false) {           
+            $permissionType = $this->resolvePermissionType($type);
+        }
+
+        return $this->adapter->hasPermissions($name,$authId,$permissionType,true);    
     }
 
     /**
@@ -306,9 +308,9 @@ class Access implements AccessInterface
     {
         $tokens = explode(':',$name);
         $name = $tokens[0];
-        $type = $tokens[1] ?? AccessInterface::FULL;     
+        $type = $tokens[1] ?? null;     
 
-        if (\is_string($type) == true) {
+        if (empty($type) == false) {
             $type = (\strtolower($type) == 'full') ? AccessInterface::FULL : Arrays::toArray($type,',');
         }
         
@@ -319,9 +321,9 @@ class Access implements AccessInterface
      * Resolve permission type
      *
      * @param string|array $type
-     * @return array|null
+     * @return array
      */
-    protected function resolvePermissionType($type): ?array
+    protected function resolvePermissionType($type): array
     {
         if (\is_array($type) == true) {
             return $type;
@@ -331,7 +333,7 @@ class Access implements AccessInterface
             $type = Arrays::toArray($type,',');
         }
 
-        return null;
+        return [];
     }
 
     /**
