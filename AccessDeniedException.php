@@ -12,13 +12,11 @@ namespace Arikaim\Core\Access;
 use Exception;
 use Throwable;
 
+/**
+ * Access denied exception class
+ */
 class AccessDeniedException extends Exception
 {
-    /**
-     * @var object
-     */
-    protected $request;
-
     /**
      * @var string
      */
@@ -30,22 +28,14 @@ class AccessDeniedException extends Exception
     protected $description = '';
 
     /**
-     * @param object            $request
+     * Constructor
+     * 
      * @param string            $message
      * @param int               $code
      * @param Throwable|null    $previous
      */
-    public function __construct($request, string $message = '', int $code = 0, ?Throwable $previous = null) {
-        parent::__construct($message,$code,$previous);
-        $this->request = $request;
-    }
-
-    /**
-     * @return object
-    */
-    public function getRequest()
-    {
-        return $this->request;
+    public function __construct(string $message = '', int $code = 0, ?Throwable $previous = null) {
+        parent::__construct($message,$code,$previous);      
     }
 
     /**

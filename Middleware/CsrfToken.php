@@ -11,9 +11,8 @@ namespace Arikaim\Core\Access\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\MiddlewareInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 
+use Arikaim\Core\Framework\MiddlewareInterface;
 use Arikaim\Core\Access\Middleware\AuthMiddleware;
 use Arikaim\Core\Access\Csrf;
 
@@ -29,7 +28,7 @@ class CsrfToken extends AuthMiddleware implements MiddlewareInterface
      * @param RequestHandlerInterface $handler
      * @return ResponseInterface
     */
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    public function process(ServerRequestInterface $request, ResponseInterface $response): array
     {
         if (\in_array($request->getMethod(),['POST','PUT','DELETE','PATCH']) == true) {
             $token = $this->getToken($request);
@@ -37,12 +36,12 @@ class CsrfToken extends AuthMiddleware implements MiddlewareInterface
             if (Csrf::validateToken($token) == false) {   
                 $request = $this->generateToken($request);  
                 // token error
-                return $this->handleError($request,$handler);                                                 
+                return [$request,$this->handleError($response)];                                                 
             }
         }
         $request = $this->generateToken($request);     
 
-        return $handler->handle($request);
+        return [$request,$response];
     }
 
     /**

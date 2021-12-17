@@ -10,20 +10,18 @@
 namespace Arikaim\Core\Access\Middleware;
 
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Server\MiddlewareInterface;
-use Slim\Exception\HttpNotFoundException;
 
+use Arikaim\Core\Framework\Middleware\Middleware;
+use Arikaim\Core\Framework\MiddlewareInterface;
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
-use Arikaim\Core\Http\Response;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Access\AccessDeniedException;
 
 /**
- *  Middleware base class
+ *  Auth Middleware base class
  */
-class AuthMiddleware implements MiddlewareInterface
+class AuthMiddleware extends Middleware implements MiddlewareInterface
 {
     /**
      * Auth provider
@@ -33,24 +31,17 @@ class AuthMiddleware implements MiddlewareInterface
     protected $authProviders;
 
     /**
-     * Options
-     *
-     * @var array
-     */
-    protected $options;
-
-    /**
      * Constructor
      *
-     * @param AuthProviderInterface $auth
-     * @param array $options
+     * @param ContainerInterface|null
+     * @param array|null $options
      */
-    public function __construct(array $authProviders, array $options = [])
+    public function __construct($container = null, ?array $options = [])
     {
-        $this->authProviders = $authProviders;     
-        $this->options = $options;
+       parent::__construct($container,$options);
+       $this->authProviders = $options['authProviders'] ?? [];  
     }
-    
+
     /**
      * Set Auth providers
      *
@@ -65,30 +56,26 @@ class AuthMiddleware implements MiddlewareInterface
     /**
      * Process middleware
      * 
-     * @param ServerRequestInterface  $request
-     * @param RequestHandlerInterface $handler
+     * @param ServerRequestInterface  $request  
      * @return ResponseInterface
     */
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    public function process(ServerRequestInterface $request, ResponseInterface $response): array
     {      
         foreach ($this->authProviders as $provider) {
 
             if ($provider->isLogged() == true) {
                 Arikaim::get('access')->withProvider($provider);     
-
-                return $handler->handle($request);  
+                return [$request,$response];
             }
             
             if ($provider->authenticate([],$request) == true) {
                 // success
                 Arikaim::get('access')->withProvider($provider);     
-
-                return $handler->handle($request);  
+                return [$request,$response];
             } 
         }
-        
-        // error
-        return $this->handleError($request,$handler);
+             
+        return [$request,$this->handleError($response)];
     }
 
     /**
@@ -96,7 +83,7 @@ class AuthMiddleware implements MiddlewareInterface
      *
      * @return AuthProviderInterface|null
      */
-    public function getAuthProvider($name)
+    public function getAuthProvider($name): ?AuthProviderInterface
     {
         return $this->authProviders[$name] ?? null;
     }
@@ -104,18 +91,16 @@ class AuthMiddleware implements MiddlewareInterface
     /**
      * Show auth error
      *
-     * @param ServerRequestInterface  $request
-     * @param RequestHandlerInterface $handler
-     * @return string
-     * @throws HttpNotFoundException
+     * @param ResponseInterface $response
+     * @return ResponseInterface
+     * @throws AccessDeniedException
      */
-    protected function handleError($request, $handler)
+    protected function handleError($response): ResponseInterface
     {      
         $redirect = $this->options['redirect'] ?? false;
-        $response = Response::create();
 
         if (empty($redirect) == false) { 
-            // redirect         
+            // redirect     
             return $response
                 ->withoutHeader('Cache-Control')
                 ->withHeader('Cache-Control','no-cache, must-revalidate')
@@ -125,20 +110,9 @@ class AuthMiddleware implements MiddlewareInterface
                 ->withStatus(307);                 
         }
 
-        throw new AccessDeniedException($request,'Access Denied');
+        $response->withStatus(401);
+        throw new AccessDeniedException('Access Denied');
         
-        return $response->withStatus(401); 
-    }
-
-    /**
-     * Get option value
-     *
-     * @param string $key
-     * @param mixed|null $default
-     * @return mixed
-     */
-    protected function getOption(string $key, $default = null)
-    {
-        return $this->options[$key] ?? $default;
-    }
+        return $response; 
+    }    
 }
