@@ -96,22 +96,20 @@ class AuthMiddleware extends Middleware implements MiddlewareInterface
      * @throws AccessDeniedException
      */
     protected function handleError($response): ResponseInterface
-    {      
-        $redirect = $this->options['redirect'] ?? false;
-
-        if (empty($redirect) == false) { 
-            // redirect     
-            return $response
+    {             
+        if (empty($this->options['redirect'] ?? null) == false) { 
+            // Set response redirect     
+            $response = $response
                 ->withoutHeader('Cache-Control')
                 ->withHeader('Cache-Control','no-cache, must-revalidate')
                 ->withHeader('Content-Length','0')    
                 ->withHeader('Expires','Sat, 26 Jul 1997 05:00:00 GMT')        
-                ->withHeader('Location',$redirect)
-                ->withStatus(307);                 
+                ->withHeader('Location',$this->options['redirect'])
+                ->withStatus(302);                 
         }
 
         $response->withStatus(401);
-        throw new AccessDeniedException('Access Denied');
+        throw new AccessDeniedException('Access Denied',$response);
         
         return $response; 
     }    

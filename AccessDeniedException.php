@@ -9,6 +9,8 @@
  */
 namespace Arikaim\Core\Access;
 
+use Psr\Http\Message\ResponseInterface;
+
 use Exception;
 use Throwable;
 
@@ -28,17 +30,43 @@ class AccessDeniedException extends Exception
     protected $description = '';
 
     /**
+     * Response
+     *
+     * @var ResponseInterface|null
+     */
+    protected $response = null;
+
+    /**
      * Constructor
      * 
      * @param string            $message
+     * @param ResponseInterface|null $response
      * @param int               $code
      * @param Throwable|null    $previous
      */
-    public function __construct(string $message = '', int $code = 0, ?Throwable $previous = null) {
-        parent::__construct($message,$code,$previous);      
+    public function __construct(
+        string $message = '', 
+        ?ResponseInterface $response = null,
+        int $code = 0, 
+        ?Throwable $previous = null
+    ) 
+    {
+        parent::__construct($message,$code,$previous);  
+        $this->response = $response;   
     }
 
     /**
+     * Get response
+     *
+     * @return ResponseInterface|null
+     */
+    public function getResponse(): ?ResponseInterface
+    {
+        return $this->response;
+    }
+
+    /**
+     * Get title
      * @return string
      */
     public function getTitle(): string
@@ -47,6 +75,7 @@ class AccessDeniedException extends Exception
     }
 
     /**
+     * Get description
      * @return string
      */
     public function getDescription(): string
