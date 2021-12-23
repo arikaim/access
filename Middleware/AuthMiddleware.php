@@ -106,9 +106,10 @@ class AuthMiddleware extends Middleware implements MiddlewareInterface
                 ->withHeader('Expires','Sat, 26 Jul 1997 05:00:00 GMT')        
                 ->withHeader('Location',$this->options['redirect'])
                 ->withStatus(302);                 
+        } else {
+            $response = $response->withStatus(401);
         }
 
-        $response->withStatus(401);
         throw new AccessDeniedException('Access Denied',$response);
         
         return $response; 
