@@ -60,7 +60,7 @@ class AuthMiddleware extends Middleware implements MiddlewareInterface
      * @return ResponseInterface
     */
     public function process(ServerRequestInterface $request, ResponseInterface $response): array
-    {      
+    {             
         foreach ($this->authProviders as $provider) {
 
             if ($provider->isLogged() == true) {
@@ -101,8 +101,7 @@ class AuthMiddleware extends Middleware implements MiddlewareInterface
             // Set response redirect     
             $response = $response
                 ->withoutHeader('Cache-Control')
-                ->withHeader('Cache-Control','no-cache, must-revalidate')
-                ->withHeader('Content-Length','0')    
+                ->withHeader('Cache-Control','no-cache, must-revalidate')   
                 ->withHeader('Expires','Sat, 26 Jul 1997 05:00:00 GMT')        
                 ->withHeader('Location',$this->options['redirect'])
                 ->withStatus(302);                 
