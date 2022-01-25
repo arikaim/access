@@ -24,6 +24,7 @@ class AuthFactory
     const AUTH_TOKEN        = 'token';
     const CSRF_TOKEN        = 'csrf';
     const OAUTH_TOKEN       = 'oauth';
+    const AUTH_PUBLIC       = 'public';
 
     /**
      * Providers object pool
@@ -50,7 +51,8 @@ class AuthFactory
         Self::AUTH_JWT,
         Self::AUTH_TOKEN,
         Self::CSRF_TOKEN,
-        Self::OAUTH_TOKEN      
+        Self::OAUTH_TOKEN,
+        Self::AUTH_PUBLIC     
     ];
 
     /**
@@ -63,7 +65,8 @@ class AuthFactory
         Self::AUTH_SESSION => 'Arikaim\\Core\\Access\\Provider\\SessionAuthProvider',
         Self::AUTH_JWT     => 'Arikaim\\Core\\Access\\Provider\\JwtAuthProvider',
         Self::AUTH_TOKEN   => 'Arikaim\\Core\\Access\\Provider\\TokenAuthProvider',
-        Self::OAUTH_TOKEN  => 'Arikaim\\Core\\Access\\Provider\\OauthProvider'       
+        Self::OAUTH_TOKEN  => 'Arikaim\\Core\\Access\\Provider\\OauthProvider',
+        Self::AUTH_PUBLIC  => 'Arikaim\\Core\\Access\\Provider\\PublicAuthProvider'         
     ];
 
     /**
