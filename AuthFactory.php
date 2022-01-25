@@ -18,12 +18,12 @@ use Arikaim\Core\Access\Middleware\AuthMiddleware;
 class AuthFactory
 {
     // auth type id
-    const AUTH_BASIC        = 1;
-    const AUTH_SESSION      = 2;
-    const AUTH_JWT          = 3;
-    const AUTH_TOKEN        = 4;
-    const CSRF_TOKEN        = 5;
-    const OAUTH_TOKEN       = 6;
+    const AUTH_BASIC        = 'basic';
+    const AUTH_SESSION      = 'session';
+    const AUTH_JWT          = 'jwt';
+    const AUTH_TOKEN        = 'token';
+    const CSRF_TOKEN        = 'csrf';
+    const OAUTH_TOKEN       = 'oauth';
 
     /**
      * Providers object pool
@@ -45,13 +45,12 @@ class AuthFactory
      * @var array
      */
     private static $authNames = [
-        'none',
-        'basic',
-        'session',
-        'jwt',
-        'token',
-        'csrf',
-        'oauth'
+        Self::AUTH_BASIC,
+        Self::AUTH_SESSION,
+        Self::AUTH_JWT,
+        Self::AUTH_TOKEN,
+        Self::CSRF_TOKEN,
+        Self::OAUTH_TOKEN      
     ];
 
     /**
@@ -59,54 +58,59 @@ class AuthFactory
      *
      * @var array
      */
-    private static $providerClasses = [
-        null,
-        'Arikaim\\Core\\Access\\Provider\\BasicAuthProvider',
-        'Arikaim\\Core\\Access\\Provider\\SessionAuthProvider',
-        'Arikaim\\Core\\Access\\Provider\\JwtAuthProvider',
-        'Arikaim\\Core\\Access\\Provider\\TokenAuthProvider',
-        null,
-        'Arikaim\\Core\\Access\\Provider\\OauthProvider'
+    private static $providerClasses = [      
+        Self::AUTH_BASIC   => 'Arikaim\\Core\\Access\\Provider\\BasicAuthProvider',
+        Self::AUTH_SESSION => 'Arikaim\\Core\\Access\\Provider\\SessionAuthProvider',
+        Self::AUTH_JWT     => 'Arikaim\\Core\\Access\\Provider\\JwtAuthProvider',
+        Self::AUTH_TOKEN   => 'Arikaim\\Core\\Access\\Provider\\TokenAuthProvider',
+        Self::OAUTH_TOKEN  => 'Arikaim\\Core\\Access\\Provider\\OauthProvider'       
     ];
 
     /**
      * Set user provider
      *
-     * @param string $authName
+     * @param string $name
      * @param UserProviderInterface $user
      * @return void
      */
-    public static function setUserProvider(string $authName, UserProviderInterface $user): void
+    public static function setUserProvider(string $name, UserProviderInterface $user): void
     {
-        Self::$userProviders[$authName] = $user;
+        Self::$userProviders[$name] = $user;
     }
 
     /**
      * Get user provider
      *
-     * @param string $authName
+     * @param string $name
      * @return UserProviderInterface|null
      */
-    public static function getUserProvider(string $authName): ?UserProviderInterface
+    public static function getUserProvider(string $name): ?UserProviderInterface
     {
-        return Self::$userProviders[$authName] ?? null;
+        return Self::$userProviders[$name] ?? null;
     }
 
     /**
      * Create auth provider
      *
-     * @param string|integer $name
+     * @param string $name
      * @param UserProviderInterface|null $defaultUserProvider
      * @param array $params
      * @return object|null
      */
-    public static function createProvider($name, ?UserProviderInterface $defaultUserProvider = null, array $params = [])
+    public static function createProvider(string $name, ?UserProviderInterface $defaultUserProvider = null, array $params = [])
     {
         if (isset(Self::$providers[$name]) == true) {
             return Self::$providers[$name];
         }
-        $class = (\class_exists($name) == true) ? $name : Self::getAuthProviderClass(Self::resolveAuthType($name));      
-        $user = Self::$userProviders[$name] ?? $defaultUserProvider ?? Self::$userProviders['session'];
+        $class = Self::$providerClasses[$name] ?? ''; 
+        if (\class_exists($class) == false) {
+            return null;
+        }     
+
+        $user = Self::$userProviders[$name] ?? $defaultUserProvider;
+        if ($user == null) {
+            $user = Self::$userProviders['session'];
+        }
 
         Self::$providers[$name] = new $class($user,$params);
         
@@ -121,7 +125,7 @@ class AuthFactory
      * @param array $options
      * @return object|null
      */
-    public static function createMiddleware($authName, ?UserProviderInterface $user = null, array $options = [])
+    public static function createMiddleware(string $authName, ?UserProviderInterface $user = null, array $options = [])
     {            
         $options['authProviders'] = Self::createAuthProviders($authName,$user);
 
@@ -141,23 +145,11 @@ class AuthFactory
 
         $result = [];
         foreach ($providers as $item) {
-            $name = (\is_numeric($item) == true) ? Self::getAuthName($item) : $item; 
-            $result[$name] = Self::createProvider($item,$user);
+            $result[$item] = Self::createProvider($item,$user);
         }
 
         return $result;
     } 
-
-    /**
-     * Return auth type id
-     *
-     * @param string $name
-     * @return int
-     */
-    public static function getTypeId(string $name): int
-    {
-        return (int)\array_search($name,Self::$authNames);                 
-    }
 
     /**
      * Check if auth name is valid 
@@ -173,49 +165,29 @@ class AuthFactory
     /**
      * Resolve auth type
      *
-     * @param string|integer|array $type
-     * @return null|integer|string
+     * @param string|null|array $type
+     * @return null|string
      */
-    public static function resolveAuthType($type)
+    public static function resolveAuthType($type): ?string
     {
-        if (\is_numeric($type) == true) {
-            return (int)$type;
-        }
-        if (\is_string($type) == true) {           
-            return Self::getTypeId($type);
-        }
         if (\is_array($type) == true) {
-            $result = '';
-            foreach($type as $item) {
-                $id = Self::getTypeId($item);
-                $result .= (empty($result) == false) ? ',' . $id : $id;
-            }
-
-            return $result;
+            return \implode(',',$type);
         }
-
-        return null;
-    }
-
-    /**
-     * Return auth name
-     *
-     * @param int $auth
-     * @return string|null
-     */
-    public static function getAuthName(int $auth): ?string
-    {
-        return Self::$authNames[$auth] ?? null;          
+        if ($type == null) {
+            return null;
+        }
+      
+        return \trim((string)$type);
     }
 
     /**
      * Get auth provider class
      *
-     * @param integer|string $id
+     * @param string $name
      * @return string
      */
-    public static function getAuthProviderClass($id): string
+    public static function getAuthProviderClass(string $name): string
     {
-        return Self::$providerClasses[$id] ?? '';
+        return Self::$providerClasses[$name] ?? '';
     }
 }

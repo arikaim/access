@@ -393,40 +393,12 @@ class Access implements AccessInterface
     }
 
     /**
-     * Return auth name
-     *
-     * @param int $auth
-     * @return string|null
-     */
-    public function getAuthName($auth): ?string
-    {
-        return AuthFactory::getAuthName($auth);        
-    }
-
-    /**
-     * Get auth names
-     *
-     * @param mixed $auth
-     * @return array
-     */
-    public function getAuthNames($auth): array
-    {
-        $tokens = explode(',',$auth);
-        $result = [];
-        foreach ($tokens as $item) {
-            $result[] = AuthFactory::getAuthName($item);
-        }
-
-        return $result;
-    }
-
-    /**
      * Resolve auth type
      *
-     * @param string|integer $type
-     * @return null|integer|string
+     * @param string|null|array $type
+     * @return null|string
      */
-    public function resolveAuthType($type)
+    public function resolveAuthType($type): ?string
     {
         return AuthFactory::resolveAuthType($type);
     }

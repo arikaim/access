@@ -64,12 +64,13 @@ abstract class AuthProvider implements AuthProviderInterface
     public static function readAuthHeader(ServerRequestInterface $request, bool $bearer = true): ?string
     {   
         $headers = $request->getHeader('Authorization');
-        $header = $headers[0] ?? null;
+        $header = $headers[0] ?? '';
     
         if (empty($header) && \function_exists('apache_request_headers')) {
             $headers = \apache_request_headers();
             $header = $headers['Authorization'] ?? null;
         }
+        $header = \trim($header);
         if ($bearer == true) {
             return (\preg_match('/Bearer\s+(.*)$/i',$header,$matches) == true) ? $matches[1] : null;
         }
