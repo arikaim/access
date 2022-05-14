@@ -67,6 +67,9 @@ class TokenAuthProvider extends AuthProvider implements AuthProviderInterface
         $route = $request->getAttribute('route');
         $token = $route['token'] ?? null; 
       
+        // token 
+
+        
         // from request body
         if (empty($token) == true) {
             // try from requets body 
