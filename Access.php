@@ -325,15 +325,15 @@ class Access implements AccessInterface
      */
     protected function resolvePermissionType($type): array
     {
-        if (\is_array($type) == true) {
-            return $type;
-        }
-    
         if (\is_string($type) == true) {
             $type = Arrays::toArray($type,',');
         }
 
-        return [];
+        if (\is_array($type) == false) {
+            return AccessInterface::FULL;
+        }
+
+        return (empty($type) == true) ? AccessInterface::FULL : $type;          
     }
 
     /**
