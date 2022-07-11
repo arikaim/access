@@ -15,7 +15,6 @@ use Psr\Http\Message\ResponseInterface;
 use Arikaim\Core\Framework\Middleware\Middleware;
 use Arikaim\Core\Framework\MiddlewareInterface;
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\Access\AccessDeniedException;
 
 /**
@@ -61,16 +60,18 @@ class AuthMiddleware extends Middleware implements MiddlewareInterface
     */
     public function process(ServerRequestInterface $request, ResponseInterface $response): array
     {             
+        global $container;
+
         foreach ($this->authProviders as $provider) {
 
             if ($provider->isLogged() == true) {
-                Arikaim::get('access')->withProvider($provider);     
+                $container->get('access')->withProvider($provider);     
                 return [$request,$response];
             }
             
             if ($provider->authenticate([],$request) == true) {
                 // success
-                Arikaim::get('access')->withProvider($provider);     
+                $container->get('access')->withProvider($provider);     
                 return [$request,$response];
             } 
         }
