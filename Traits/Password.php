@@ -40,7 +40,7 @@ trait Password
     public function changePassword($id, string $password): bool
     {       
         $model = $this->findById($id);
-        if (\is_object($model) == false) {
+        if ($model == null) {
             return false;
         }
         $model->{$this->getPasswordAttributeName()} = $this->encryptPassword($password);  
