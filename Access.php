@@ -90,9 +90,11 @@ class Access implements AccessInterface
      */
     public function middleware(string $authName, array $options = [], ?UserProviderInterface $user = null)
     {       
-        $user = $user ?? $this->user;
-
-        return AuthFactory::createMiddleware($authName,$user,$options);       
+        return AuthFactory::createMiddleware(
+            $authName,
+            $user ?? $this->user,
+            $options
+        );       
     }
 
     /**
@@ -103,7 +105,7 @@ class Access implements AccessInterface
      * @param array $params
      * @return AuthProviderInterface
     */
-    public function requireProvider($provider, $user = null, array $params = [])
+    public function requireProvider($provider, $user = null, array $params = []): ?object
     {
         if (\is_null($this->provider) == true) {
             $this->withProvider($provider,$user,$params);
@@ -139,11 +141,12 @@ class Access implements AccessInterface
      * @return object|null
      */
     public function createProvider(string $name, ?UserProviderInterface $user = null, ?array $params = null)
-    {
-        $user = $user ?? $this->user;   
-        $params = $params ?? $this->providerOptions;
-        
-        return AuthFactory::createProvider($name,$user,$params);       
+    { 
+        return AuthFactory::createProvider(
+            $name,
+            $user ?? $this->user,
+            $params ?? $this->providerOptions
+        );       
     }
 
     /**
@@ -234,14 +237,16 @@ class Access implements AccessInterface
      */
     public function hasAccess($name, $type = null, $authId = null): bool
     {       
-        $authId = $authId ?? $this->getId();
         list($name,$permissionType) = $this->resolvePermissionName($name);
-       
         if (\is_array($permissionType) == false) {           
             $permissionType = $this->resolvePermissionType($type);
         }
         
-        return $this->adapter->hasPermissions($name,$authId,$permissionType);            
+        return $this->adapter->hasPermissions(
+            $name,
+            $authId ?? $this->getId(),
+            $permissionType
+        );            
     }
 
     /**
@@ -253,15 +258,18 @@ class Access implements AccessInterface
      * @return boolean
      */
     public function hasDeny($name, $type = null, $authId = null): bool
-    {
-        $authId = $authId ?? $this->getId();
-        list($name,$permissionType) = $this->resolvePermissionName($name);
-       
+    {      
+        list($name,$permissionType) = $this->resolvePermissionName($name);  
         if (\is_array($permissionType) == false) {           
             $permissionType = $this->resolvePermissionType($type);
         }
 
-        return $this->adapter->hasPermissions($name,$authId,$permissionType,true);    
+        return $this->adapter->hasPermissions(
+            $name,
+            $authId ?? $this->getId(),
+            $permissionType,
+            true
+        );    
     }
 
     /**
@@ -272,9 +280,7 @@ class Access implements AccessInterface
      */
     public function getUserPermissions($authId = null)
     {
-        $authId = $authId ?? $this->getId();
-
-        return $this->adapter->getUserPermissions($authId);
+        return $this->adapter->getUserPermissions($authId ?? $this->getId());
     }
 
     /**
@@ -314,7 +320,10 @@ class Access implements AccessInterface
             $type = (\strtolower($type) == 'full') ? AccessInterface::FULL : Arrays::toArray($type,',');
         }
         
-        return [$name,$type];
+        return [
+            $name,
+            $type
+        ];
     }
 
     /**
