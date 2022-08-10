@@ -15,7 +15,7 @@ use Arikaim\Core\Access\Interfaces\UserProviderInterface;
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
 use Arikaim\Core\Collection\Arrays;
 use Arikaim\Core\Access\AuthFactory;
-use Arikaim\Core\Access\Provider\PublicAuthProvider;
+use Arikaim\Core\Access\Provider\SessionAuthProvider;
 
 /**
  * Manage permissions.
@@ -66,7 +66,7 @@ class Access implements AccessInterface
     {
         $this->adapter = $adapter;  
         $this->user = $user;
-        $this->provider = $provider ?? new PublicAuthProvider($user); 
+        $this->provider = $provider ?? new SessionAuthProvider($user); 
         $this->providerOptions = $providerOptions;
     }
 
@@ -257,7 +257,7 @@ class Access implements AccessInterface
      * @param integer|null $authId
      * @return mixed
      */
-    public function getUserPermissions($authId = null)
+    public function getUserPermissions(?int $authId = null)
     {
         return $this->adapter->getUserPermissions($authId ?? $this->getId());
     }
