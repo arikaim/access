@@ -6,7 +6,7 @@ Authentication and permissions package for Arikaim CMS
      
 
 #### Requirements 
-  * PHP 7.3, 7.4
+  * Arikaim CMS
 
 
 #### Installation

@@ -30,8 +30,7 @@ class SessionAuthProvider extends AuthProvider implements AuthProviderInterface
     public function authenticate(array $credentials, ?ServerRequestInterface $request = null): bool
     {
         $user = $this->getProvider()->getUserByCredentials($credentials);
-      
-        if (\is_null($user) == true) {
+        if ($user === null) {
             $this->fail();
             return false;
         }

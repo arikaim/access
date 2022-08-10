@@ -71,7 +71,7 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
 
         $this->user = $this->getProvider()->getUserById($id);
         
-        if (\is_null($this->user) == true) {
+        if ($this->user === null) {
             $this->clearToken();
             return false;
         }

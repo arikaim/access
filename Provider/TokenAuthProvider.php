@@ -33,10 +33,9 @@ class TokenAuthProvider extends AuthProvider implements AuthProviderInterface
         if (empty($token) == true) {
             $credentials['token'] = $this->readToken($request);
         }       
-        
         $this->user = $this->getProvider()->getUserByCredentials($credentials);
     
-        return (\is_null($this->user) == true) ? false : true;             
+        return !($this->user === null);     
     }
   
     /**

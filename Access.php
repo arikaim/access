@@ -15,6 +15,7 @@ use Arikaim\Core\Access\Interfaces\UserProviderInterface;
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
 use Arikaim\Core\Collection\Arrays;
 use Arikaim\Core\Access\AuthFactory;
+use Arikaim\Core\Access\Provider\PublicAuthProvider;
 
 /**
  * Manage permissions.
@@ -40,7 +41,7 @@ class Access implements AccessInterface
     /**
      * Undocumented variable
      *
-     * @var AuthProviderInterface|null
+     * @var AuthProviderInterface
      */
     private $provider = null;
 
@@ -65,7 +66,7 @@ class Access implements AccessInterface
     {
         $this->adapter = $adapter;  
         $this->user = $user;
-        $this->provider = $provider; 
+        $this->provider = $provider ?? new PublicAuthProvider($user); 
         $this->providerOptions = $providerOptions;
     }
 
@@ -77,7 +78,7 @@ class Access implements AccessInterface
      */
     public function authenticate(array $credentials): bool
     {
-        return (\is_null($this->provider) == true) ? false : $this->provider->authenticate($credentials);
+        return $this->provider->authenticate($credentials);
     }
 
     /**
@@ -98,23 +99,6 @@ class Access implements AccessInterface
     }
 
     /**
-     * Set provider if is null
-     *
-     * @param AuthProviderInterface|string $provider
-     * @param UserProviderInterface|null $user
-     * @param array $params
-     * @return AuthProviderInterface
-    */
-    public function requireProvider($provider, $user = null, array $params = []): ?object
-    {
-        if (\is_null($this->provider) == true) {
-            $this->withProvider($provider,$user,$params);
-        }
-
-        return $this->provider;
-    }
-
-    /**
      * Change auth provider
      *
      * @param AuthProviderInterface|string $provider
@@ -124,9 +108,7 @@ class Access implements AccessInterface
      */
     public function withProvider($provider, $user = null, array $params = [])
     {
-        if (\is_string($provider) == true || \is_integer($provider) == true) {
-            $provider = $this->createProvider($provider,$user,$params);
-        }
+        $provider = ($provider instanceof AuthProviderInterface) ? $provider : $this->createProvider($provider,$user,$params);
         $this->setProvider($provider);
 
         return $provider;
@@ -220,11 +202,8 @@ class Access implements AccessInterface
     public function hasControlPanelAccess($authId = null): bool
     {
         $authId = (empty($authId) == true) ? $this->getId() : $authId;
-        if (empty($authId) == true) {
-            return false;
-        }
-
-        return $this->hasAccess(AccessInterface::CONTROL_PANEL,AccessInterface::FULL,$authId);
+      
+        return (empty($authId) == true) ? false : $this->hasAccess(AccessInterface::CONTROL_PANEL,AccessInterface::FULL,$authId);
     }
     
     /**
@@ -352,9 +331,7 @@ class Access implements AccessInterface
      */
     public function logout(): void
     {
-        if (\is_null($this->provider) == false) {
-            $this->provider->logout();
-        }
+        $this->provider->logout();
     }
 
     /**
@@ -364,7 +341,7 @@ class Access implements AccessInterface
      */
     public function getUser(): ?array
     {
-        return (\is_null($this->provider) == true) ? null : $this->provider->getUser();
+        return $this->provider->getUser();
     }
 
     /**
@@ -374,7 +351,7 @@ class Access implements AccessInterface
      */
     public function getLoginAttempts(): ?int
     {
-        return (\is_null($this->provider) == true) ? null : $this->provider->getLoginAttempts();
+        return $this->provider->getLoginAttempts();
     }
 
     /**
@@ -384,10 +361,6 @@ class Access implements AccessInterface
      */
     public function getId()
     {
-        if (\is_null($this->provider) == true) {
-            $this->withProvider(Self::DEFAULT_AUTH_PROVIDER);
-        }
-        
         return $this->provider->getId();
     }
 
