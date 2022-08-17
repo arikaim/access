@@ -37,8 +37,8 @@ class AuthMiddleware extends Middleware implements MiddlewareInterface
      */
     public function __construct($container = null, ?array $options = [])
     {
-       parent::__construct($container,$options);
-       $this->authProviders = $options['authProviders'] ?? [];  
+        parent::__construct($container,$options);
+        $this->authProviders = $options['authProviders'] ?? [];  
     }
 
     /**

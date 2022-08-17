@@ -13,7 +13,6 @@ use Arikaim\Core\Interfaces\Access\AccessInterface;
 use Arikaim\Core\Access\Interfaces\PermissionsInterface;
 use Arikaim\Core\Access\Interfaces\UserProviderInterface;
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
-use Arikaim\Core\Collection\Arrays;
 use Arikaim\Core\Access\AuthFactory;
 use Arikaim\Core\Access\Provider\SessionAuthProvider;
 
@@ -291,12 +290,12 @@ class Access implements AccessInterface
      */
     public function resolvePermissionName(string $name): array
     {
-        $tokens = explode(':',$name);
+        $tokens = \explode(':',$name);
         $name = $tokens[0];
         $type = $tokens[1] ?? null;     
 
         if (empty($type) == false) {
-            $type = (\strtolower($type) == 'full') ? AccessInterface::FULL : Arrays::toArray($type,',');
+            $type = (\strtolower($type) == 'full') ? AccessInterface::FULL : \explode(',',$type);
         }
         
         return [
@@ -314,7 +313,7 @@ class Access implements AccessInterface
     protected function resolvePermissionType($type): array
     {
         if (\is_string($type) == true) {
-            $type = Arrays::toArray($type,',');
+            $type = \explode(',',$type); 
         }
 
         if (\is_array($type) == false) {
