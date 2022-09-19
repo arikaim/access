@@ -106,15 +106,12 @@ class AuthFactory
             return Self::$providers[$name];
         }
         $class = Self::$providerClasses[$name] ?? ''; 
-        if (\class_exists($class) == false) {
+        if (empty($class) == true) {
             return null;
         }     
 
-        $user = Self::$userProviders[$name] ?? $defaultUserProvider;
-        if ($user == null) {
-            $user = Self::$userProviders['session'];
-        }
-
+        $user = Self::$userProviders[$name] ?? $defaultUserProvider ?? Self::$userProviders['session'];
+       
         Self::$providers[$name] = new $class($user,$params);
         
         return Self::$providers[$name];
@@ -176,7 +173,7 @@ class AuthFactory
         if (\is_array($type) == true) {
             return \implode(',',$type);
         }
-        if ($type == null) {
+        if (empty($type) == true) {
             return null;
         }
       

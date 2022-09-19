@@ -206,6 +206,25 @@ class Access implements AccessInterface
     }
     
     /**
+     * Return true if user has one permission from permissions list
+     *
+     * @param array  $names Permission names
+     * @param string|array|null $type PermissionType (read,write,execute,delete)   
+     * @param string|integer|null $authId 
+     * @return boolean
+     */
+    public function hasAccessOneFrom(array $names, $type = null, $authId = null): bool 
+    {
+        foreach($names as $name) {
+            if ($this->hasAccess($name,$type,$authId) == true) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Check access 
      *
      * @param string|int $name Permission name
