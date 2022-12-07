@@ -23,7 +23,7 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
     /**
      * JWT token
      *
-     * @var array
+     * @var object|null
      */
     private $token;
 
@@ -107,8 +107,7 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
      */
     public function clearToken(): void
     {
-        $this->token['decoded'] = null;
-        $this->token['token'] = null;
+        $this->token = null;
     }
 
     /**
@@ -118,7 +117,7 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
      */
     public function isValidToken(): bool
     {
-        return !empty($this->token['decoded']);           
+        return ($this->token != null);           
     }
 
     /**
@@ -127,15 +126,11 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
      * @param mixed $id Auth id
      * @param integer|null $expire
      * @param string|null $key
-     * @return object
+     * @return string
      */
     public function createToken($id, ?int $expire = null, ?string $key = null) 
     {
-        $key = (empty($key) == true) ? $this->jwtKey: $key;
-        $jwt = new Jwt($expire,$key);
-        $jwt->set('user_id',$id);   
-
-        return $jwt->createToken();       
+        return Jwt::createToken($id,$key ?? $this->jwtKey,$expire);              
     }
 
     /**
@@ -146,26 +141,20 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
      * @param string|null $key
      * @return boolean
      */
-    public function decodeToken(string $token, $expire = null, $key = null): bool
+    public function decodeToken(string $token, $key = null): bool
     {       
         $key = (empty($key) == true) ? $this->jwtKey : $key;
-        $jwt = new Jwt($expire,$key);
+        $this->token = Jwt::decodeToken($token,$key);
 
-        $decoded = $jwt->decodeToken($token);
-        $decoded = ($decoded === false) ? null : $decoded;
-
-        $this->token['token'] = $token;
-        $this->token['decoded'] = $decoded;
-       
-        return !empty($decoded);
+        return ($this->token != null);         
     }
 
     /**
      * Return token array data
      *
-     * @return array
+     * @return object|null
      */
-    public function getToken(): array
+    public function getToken(): ?object
     {
         return $this->token;
     }
@@ -177,11 +166,7 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
      * @return mixed|null
      */
     public function getTokenParam(string $name)
-    {
-        if (isset($this->token['decoded'][$name]) == false) {
-            return null;
-        }
-        
-        return (\is_object($this->token['decoded'][$name]) == true) ? $this->token['decoded'][$name]->getValue() : null;            
+    {  
+        return ($this->token == null) ? null : $this->token->claims()->get($name);
     }
 }

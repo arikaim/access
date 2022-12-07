@@ -9,129 +9,85 @@
 */
 namespace Arikaim\Core\Access;
 
-use Lcobucci\JWT\Builder;
-use Lcobucci\JWT\Parser;
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Lcobucci\JWT\Token\Plain;
+use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
+use DateTimeImmutable;
+use Exception;
 
 /**
  * JSON Web Token Authentication
 */
 class Jwt
 {
-    /**
-     * JWT object
-     *
-     * @var object
-     */
-    private $token;
-    
-    /**
-     * JWT key
-     *
-     * @var string
-     */
-    private $key;
-
-    /**
-     * Constructor
-     *
-     * @param int|null $expireTime Expire time stamp, default value 1 month
-     */
-    public function __construct($expireTime = null, string $key)
-    {
-        $this->key = $key;
-        $this->init($expireTime);
-    }
-
-    /**
-     * Init token data
-     *
-     * @param int|null $expireTime
-     * @return void
-     */
-    private function init($expireTime = null): void 
-    {
-        $expireTime = ($expireTime == null) ? \strtotime('+1 week') : $expireTime;
-        $tokenId = \base64_encode(\random_bytes(32));
-       
-        $this->token = new Builder();
-        $this->token->setIssuer(DOMAIN);
-        $this->token->setAudience(DOMAIN);
-        $this->token->setId($tokenId, true);
-        $this->token->setIssuedAt(time());
-        $this->token->setNotBefore(time());
-        $this->token->setExpiration($expireTime);
-    }
-
-    /**
-     * Set token parameter
-     *
-     * @param string $key
-     * @param mixed $value
-     * @return void
-     */
-    public function set(string $key, $value): void 
-    {        
-        $this->token->set($key,$value);
-    }
-    
-    /**
-     * Create JWT token
-     *
-     * @return string
-     */
-    public function createToken(): string 
+   
+    public static function createToken($id, string $key, ?int $expire = null): ?string 
     {    
-        $signer = new Sha256();
-        $this->token->sign($signer,$this->key);
+        try {
+            $config = Configuration::forSymmetricSigner(new Sha256(),InMemory::plainText($key));
+        } catch (Exception $e) {
+            return null;
+        }
+      
+        $now = new DateTimeImmutable();
+        $tokenId = \base64_encode(\random_bytes(32));
+        $expireTime = ($expire == null) ? $now->modify('+1 week') : $expire;
+
+        $token = $config->builder()
+            ->issuedBy(DOMAIN)
+            ->permittedFor(DOMAIN)
+            ->identifiedBy($tokenId)             
+            ->issuedAt($now)
+            ->canOnlyBeUsedAfter($now->modify('+1 minute'))
+            ->expiresAt($expireTime)
+            ->withClaim('user_id',$id)
+            ->getToken($config->signer(), $config->signingKey());
         
-        return (string)$this->token->getToken();
+        return $token->toString();
     }
     
     /**
      * Decode encrypted JWT token
      *
      * @param string $token
-     * @param boolean $verify
-     * @return mixed
+     * @param string $key
+     * @return object|null
      */
-    public function decodeToken(string $token, bool $verify = true)
+    public static function decodeToken(string $token, string $key): ?object
     {
         try {
-            $parser = new Parser();
-            $this->token = $parser->parse($token);      
-            if ($verify == true) {
-                if ($this->verify($this->key) == false) {
-                    // Token not valid
-                    return false; 
-                }
-            }
-            return $this->token->getClaims();
-        } catch(\Exception $e) {
-            return false;
+            $config = Configuration::forSymmetricSigner(new Sha256(),InMemory::plainText($key));
+            $token = $config->parser()->parse($token);
+        } catch (Exception $e) {
+            return null;
         }
+
+        return ($token instanceof Plain) ? $token : null;
     }
 
     /**
-     * Verify token data
+     * Validate token
      *
-     * @return boolean
-     */
-    public function verify(): bool 
-    {
-        $signer = new Sha256();
-        
-        return $this->token->verify($signer,$this->key);
-    }
-
-    /**
-     * Validate token data
-     *
-     * @param mixed $data
+     * @param string $token
      * @return mixed
      */
-    public function validate($data) 
+    public static function validate(string $token, string $key): bool 
     {
-        return $this->token->validate($data);
+        try {
+            $config = Configuration::forSymmetricSigner(new Sha256(),InMemory::plainText($key));
+            $token = $config->parser()->parse($token);
+            $constraints = $config->validationConstraints();
+
+            if (($token instanceof Plain) == false) {
+                return false;
+            }
+            $config->validator()->assert($token, ...$constraints);
+            
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
     }
 }
