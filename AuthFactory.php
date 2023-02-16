@@ -177,7 +177,7 @@ class AuthFactory
             return null;
         }
       
-        return \trim((string)$type);
+        return \trim((string)$type ?? '');
     }
 
     /**

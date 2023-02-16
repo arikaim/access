@@ -70,7 +70,7 @@ abstract class AuthProvider implements AuthProviderInterface
             $headers = \apache_request_headers();
             $header = $headers['Authorization'] ?? null;
         }
-        $header = \trim($header);
+        $header = \trim($header ?? '');
         
         if ($bearer == true) {
             return (\preg_match('/Bearer\s+(.*)$/i',$header,$matches) == true) ? $matches[1] : null;
