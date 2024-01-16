@@ -226,9 +226,11 @@ class Access implements AccessInterface
             $permissionType = $this->resolvePermissionType($type);
         }
         
+        $authId = empty($authId) ? $this->getId() : $authId;
+
         return $this->adapter->hasPermissions(
             $name,
-            $authId ?? $this->getId(),
+            $authId,
             $permissionType
         );            
     }
@@ -248,9 +250,11 @@ class Access implements AccessInterface
             $permissionType = $this->resolvePermissionType($type);
         }
 
+        $authId = empty($authId) ? $this->getId() : $authId;
+
         return $this->adapter->hasPermissions(
             $name,
-            $authId ?? $this->getId(),
+            $authId,
             $permissionType,
             true
         );    
