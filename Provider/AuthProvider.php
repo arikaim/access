@@ -46,9 +46,8 @@ abstract class AuthProvider implements AuthProviderInterface
      * @param UserProviderInterface $user
      * @param array $params
      */
-    public function __construct(UserProviderInterface $userProvider, array $params = [])
+    public function __construct(array $params = [])
     {       
-        $this->userProvider = $userProvider;
         $this->user = null;
         $this->params = $params;
         $this->init();

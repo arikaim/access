@@ -12,7 +12,7 @@ namespace Arikaim\Core\Access\Interfaces;
 /**
  * Auth tokens interface
  */
-interface AutoTokensInterface
+interface AuthTokensInterface
 {    
     /**
      * Token access type

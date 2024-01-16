@@ -14,6 +14,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
 use Arikaim\Core\Access\Provider\AuthProvider;
 use Arikaim\Core\Access\Jwt;
+use Arikaim\Core\Models\Users;
 
 /**
  * JWT auth provider.
@@ -43,6 +44,7 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
     {
         $this->jwtKey = $this->getParam('key');
         $this->clearToken();
+        $this->setProvider(new Users());
     }
 
     /**

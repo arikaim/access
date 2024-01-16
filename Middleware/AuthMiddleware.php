@@ -60,18 +60,16 @@ class AuthMiddleware extends Middleware implements MiddlewareInterface
     */
     public function process(ServerRequestInterface $request, ResponseInterface $response): array
     {             
-        global $arikaim;
-
         foreach ($this->authProviders as $provider) {
 
             if ($provider->isLogged() == true) {
-                $arikaim->get('access')->withProvider($provider);     
+                $this->container->get('access')->withProvider($provider);     
                 return [$request,$response];
             }
             
             if ($provider->authenticate([],$request) == true) {
                 // success
-                $arikaim->get('access')->withProvider($provider);     
+                $this->container->get('access')->withProvider($provider);     
                 return [$request,$response];
             } 
         }

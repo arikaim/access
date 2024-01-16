@@ -11,7 +11,6 @@ namespace Arikaim\Core\Access;
 
 use Arikaim\Core\Interfaces\Access\AccessInterface;
 use Arikaim\Core\Access\Interfaces\PermissionsInterface;
-use Arikaim\Core\Access\Interfaces\UserProviderInterface;
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
 use Arikaim\Core\Access\AuthFactory;
 use Arikaim\Core\Access\Provider\SessionAuthProvider;
@@ -29,13 +28,6 @@ class Access implements AccessInterface
      * @var PermissionsInterface
      */
     private $adapter;
-
-    /**
-     * Auth user
-     *
-     * @var UserProviderInterface
-    */
-    private $user;
 
     /**
      * Undocumented variable
@@ -58,14 +50,12 @@ class Access implements AccessInterface
     */
     public function __construct(
         PermissionsInterface $adapter, 
-        UserProviderInterface $user, 
         ?AuthProviderInterface $provider = null,
         array $providerOptions = [] 
     ) 
     {
         $this->adapter = $adapter;  
-        $this->user = $user;
-        $this->provider = $provider ?? new SessionAuthProvider($user); 
+        $this->provider = $provider ?? new SessionAuthProvider($providerOptions); 
         $this->providerOptions = $providerOptions;
     }
 
@@ -84,15 +74,15 @@ class Access implements AccessInterface
      * Create auth middleware
      *
      * @param string $authName
+     * @param object|null $container
      * @param array $options
-     * @param UserProviderInterface|null $user
      * @return object|null
      */
-    public function middleware(string $authName, array $options = [], ?UserProviderInterface $user = null)
+    public function middleware(string $authName, ?object $container = null, array $options = []): ?object
     {       
         return AuthFactory::createMiddleware(
             $authName,
-            $user ?? $this->user,
+            $container,
             $options
         );       
     }
@@ -101,13 +91,12 @@ class Access implements AccessInterface
      * Change auth provider
      *
      * @param AuthProviderInterface|string $provider
-     * @param UserProviderInterface|null $user
      * @param array $params
      * @return AuthProviderInterface
      */
-    public function withProvider($provider, $user = null, array $params = [])
+    public function withProvider($provider, array $params = [])
     {
-        $provider = ($provider instanceof AuthProviderInterface) ? $provider : $this->createProvider($provider,$user,$params);
+        $provider = ($provider instanceof AuthProviderInterface) ? $provider : $this->createProvider($provider,$params);
         $this->setProvider($provider);
 
         return $provider;
@@ -117,15 +106,13 @@ class Access implements AccessInterface
      * Create auth provider
      *
      * @param string $name
-     * @param UserProviderInterface|null $user
      * @param array|null $params
      * @return object|null
      */
-    public function createProvider(string $name, ?UserProviderInterface $user = null, ?array $params = null)
+    public function createProvider(string $name, ?array $params = null)
     { 
         return AuthFactory::createProvider(
             $name,
-            $user ?? $this->user,
             $params ?? $this->providerOptions
         );       
     }

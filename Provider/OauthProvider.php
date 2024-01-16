@@ -13,12 +13,23 @@ use Psr\Http\Message\ServerRequestInterface;
 
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
 use Arikaim\Core\Access\Provider\SessionAuthProvider;
+use Arikaim\Core\Models\Users;
 
 /**
  * OAuth provider.
  */
 class OauthProvider extends SessionAuthProvider implements AuthProviderInterface
 {
+    /**
+     * Init provider
+     *
+     * @return void
+     */
+    protected function init(): void
+    {
+        $this->setProvider(new Users());
+    }
+
     /**
      * Auth user
      *

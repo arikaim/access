@@ -14,12 +14,24 @@ use Psr\Http\Message\ServerRequestInterface;
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
 use Arikaim\Core\Access\Provider\AuthProvider;
 use Arikaim\Core\Http\Cookie;
+use Arikaim\Core\Models\AccessTokens;
 
 /**
  * Token auth provider.
  */
 class TokenAuthProvider extends AuthProvider implements AuthProviderInterface
 {
+
+    /**
+     * Init provider
+     *
+     * @return void
+     */
+    protected function init(): void
+    {
+        $this->setProvider(new AccessTokens());
+    }
+
     /**
      * Authenticate
      *
