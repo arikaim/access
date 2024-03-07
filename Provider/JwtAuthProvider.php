@@ -15,6 +15,7 @@ use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
 use Arikaim\Core\Access\Provider\AuthProvider;
 use Arikaim\Core\Access\Jwt;
 use Arikaim\Core\Models\Users;
+use Arikaim\Core\Utils\Uuid;
 
 /**
  * JWT auth provider.
@@ -42,7 +43,7 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
      */
     protected function init(): void
     {
-        $this->jwtKey = $this->getParam('key');
+        $this->jwtKey = $this->getParam('key',Uuid::create());
         $this->clearToken();
         $this->setProvider(new Users());
     }
@@ -57,7 +58,7 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
     public function authenticate(array $credentials, ?ServerRequestInterface $request = null): bool
     {
         $token = $credentials['token'] ?? null;
-        $token = (empty($token) == true) ? AuthProvider::readAuthHeader($request,true) : $token;
+        $token = (empty($token) == true) ? AuthProvider::readAuthHeader($request,false) : $token;
         if (empty($token) == true) {         
             return false;
         }
@@ -146,6 +147,7 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
     public function decodeToken(string $token, $key = null): bool
     {       
         $key = (empty($key) == true) ? $this->jwtKey : $key;
+
         $this->token = Jwt::decodeToken($token,$key);
 
         return ($this->token != null);         

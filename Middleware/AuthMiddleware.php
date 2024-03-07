@@ -15,7 +15,6 @@ use Psr\Http\Message\ResponseInterface;
 use Arikaim\Core\Framework\Middleware\Middleware;
 use Arikaim\Core\Framework\MiddlewareInterface;
 use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
-use Arikaim\Core\Access\AccessDeniedException;
 
 /**
  *  Auth Middleware base class
@@ -92,7 +91,6 @@ class AuthMiddleware extends Middleware implements MiddlewareInterface
      *
      * @param ResponseInterface $response
      * @return ResponseInterface
-     * @throws AccessDeniedException
      */
     protected function handleError($response): ResponseInterface
     {             
@@ -102,14 +100,11 @@ class AuthMiddleware extends Middleware implements MiddlewareInterface
                 ->withoutHeader('Cache-Control')
                 ->withHeader('Cache-Control','no-cache, must-revalidate')   
                 ->withHeader('Expires','Sat, 26 Jul 1997 05:00:00 GMT')        
-                ->withHeader('Location',$this->options['redirect'])
-                ->withStatus(302);                 
-        } else {
-            $response = $response->withStatus(401);
-        }
+                ->withHeader('Location',$this->options['redirect']);                          
+        } 
 
-        throw new AccessDeniedException('Access Denied',$response);
-        
+        $response = $response->withStatus(401);
+       
         return $response; 
     }    
 }
