@@ -13,7 +13,6 @@ use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Token\Plain;
-use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 use DateTimeImmutable;
 use Exception;
 
@@ -22,7 +21,14 @@ use Exception;
 */
 class Jwt
 {
-   
+    /**
+     * Create token
+     *
+     * @param mixed        $id
+     * @param string       $key
+     * @param integer|null $expire
+     * @return string|null
+     */
     public static function createToken($id, string $key, ?int $expire = null): ?string 
     {    
         try {
@@ -33,17 +39,15 @@ class Jwt
       
         $now = new DateTimeImmutable();
         $tokenId = \base64_encode(\random_bytes(32));
-        $expireTime = ($expire == null) ? $now->modify('+1 week') : $expire;
+        $expireTime = (empty($expire) == true) ? $now->modify('+1 week') : $expire;
 
         $token = $config->builder()
             ->issuedBy(DOMAIN)
-            ->permittedFor(DOMAIN)
             ->identifiedBy($tokenId)             
             ->issuedAt($now)
-            ->canOnlyBeUsedAfter($now->modify('+1 minute'))
             ->expiresAt($expireTime)
             ->withClaim('user_id',$id)
-            ->getToken($config->signer(), $config->signingKey());
+            ->getToken($config->signer(),$config->signingKey());
         
         return $token->toString();
     }

@@ -143,7 +143,7 @@ class JwtAuthProvider extends AuthProvider implements AuthProviderInterface
      * @param string|null $key
      * @return boolean
      */
-    public function decodeToken(string $token, $key = null): bool
+    public function decodeToken(string $token, ?string $key = null): bool
     {       
         $key = (empty($key) == true) ? $this->jwtKey : $key;
 
