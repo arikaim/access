@@ -94,7 +94,7 @@ class AuthFactory
      */
     public static function createMiddleware(string $authName, ?object $container = null, array $options = [])
     {            
-        $options['authProviders'] = Self::createAuthProviders($authName);
+        $options['authProviders'] = Self::createAuthProviders($authName,$options);
 
         return (\count($options['authProviders']) == 0) ? null : new AuthMiddleware($container,$options);              
     }
@@ -103,15 +103,16 @@ class AuthFactory
      * Create auth providers
      *
      * @param string|array $authName
+     * @param array $params
      * @return array
      */
-    public static function createAuthProviders($authName): array
+    public static function createAuthProviders($authName, array $params = []): array
     {
         $providers = (\is_array($authName) == false) ? \explode(',',$authName) : $authName;
 
         $result = [];
         foreach ($providers as $item) {
-            $result[$item] = Self::createProvider($item);
+            $result[$item] = Self::createProvider($item,$params);
         }
 
         return $result;

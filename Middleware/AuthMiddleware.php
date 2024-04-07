@@ -103,8 +103,6 @@ class AuthMiddleware extends Middleware implements MiddlewareInterface
                 ->withHeader('Location',$this->options['redirect']);                          
         } 
 
-        $response = $response->withStatus(401);
-       
-        return $response; 
+        return $response->withStatus(401);       
     }    
 }
