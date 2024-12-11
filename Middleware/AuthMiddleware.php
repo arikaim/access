@@ -31,12 +31,11 @@ class AuthMiddleware extends Middleware implements MiddlewareInterface
     /**
      * Constructor
      *
-     * @param ContainerInterface|null
      * @param array|null $options
      */
-    public function __construct($container = null, ?array $options = [])
+    public function __construct(?array $options = [])
     {
-        parent::__construct($container,$options);
+        parent::__construct($options);
         $this->authProviders = $options['authProviders'] ?? [];  
     }
 
@@ -59,16 +58,18 @@ class AuthMiddleware extends Middleware implements MiddlewareInterface
     */
     public function process(ServerRequestInterface $request, ResponseInterface $response): array
     {             
+        global $arikaim;
+
         foreach ($this->authProviders as $provider) {
 
             if ($provider->isLogged() == true) {
-                $this->container->get('access')->withProvider($provider);     
+                $arikaim->get('access')->withProvider($provider);     
                 return [$request,$response];
             }
             
             if ($provider->authenticate([],$request) == true) {
                 // success
-                $this->container->get('access')->withProvider($provider);     
+                $arikaim->get('access')->withProvider($provider);     
                 return [$request,$response];
             } 
         }
