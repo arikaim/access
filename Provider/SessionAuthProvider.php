@@ -73,6 +73,7 @@ class SessionAuthProvider extends AuthProvider implements AuthProviderInterface
     protected function success(): void
     {
         Session::set('auth.id',$this->user['auth_id'] ?? null);
+        Session::set('auth.uuid',$this->user['uuid'] ?? null);
         Session::set('auth.login.time',time());
         Session::remove('auth.login.attempts'); 
     }
@@ -86,6 +87,7 @@ class SessionAuthProvider extends AuthProvider implements AuthProviderInterface
     {
         $this->user = null;
         Session::remove('auth.id');
+        Session::remove('auth.uuid');
         Session::remove('auth.login.time');
         Session::remove('auth.login.attempts');  
     }
